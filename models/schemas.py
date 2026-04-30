@@ -38,3 +38,20 @@ class ErrorResponse(BaseModel):
     error: str
     error_code: str
     telemetry: Optional[dict[str, Any]] = None
+
+
+class ValidateRequest(BaseModel):
+    field: Literal[
+        "fernet_key",
+        "fernet_token",
+        "public_key",
+        "private_key",
+        "encrypted_session_key",
+    ]
+    value: str
+
+
+class AssistantRequest(BaseModel):
+    question: str
+    mode: Mode = "fernet"
+    last_operation: Optional[str] = None

@@ -3,11 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Encryptify</title>
+  <meta name="description" content="Encryptify — interactive text encryption with Fernet, RSA, and Hybrid modes. Watch your data transform step by step.">
+  <meta name="theme-color" content="#050A14">
+  <meta property="og:title" content="Encryptify">
+  <meta property="og:description" content="Interactive cryptography — encrypt, decrypt, and understand.">
+  <meta property="og:type" content="website">
+  <title>Encryptify — Interactive Text Encryption</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23050A14'/%3E%3Cpath d='M20 29h24v22H20z' fill='%2300F5D4'/%3E%3Cpath d='M24 29v-7a8 8 0 0 1 16 0v7h-5v-7a3 3 0 0 0-6 0v7z' fill='%23F0F4FF'/%3E%3C/svg%3E">
+  <link rel="manifest" href="/static/manifest.json">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fira+Code:wght@400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <script>
+    (function() {
+      try {
+        const stored = localStorage.getItem("encryptify_theme");
+        const preferred = window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+        document.documentElement.setAttribute("data-theme", stored || preferred);
+      } catch {
+        document.documentElement.setAttribute("data-theme", "dark");
+      }
+    })();
+  </script>
   <style>
     :root {
       --bg-base: #050A14;
@@ -142,6 +159,42 @@
       --block-hybrid-bright: #FF4FD8;
     }
 
+    html[data-theme="light"] {
+      --bg-base: #F4F6FA;
+      --bg-surface: #FFFFFF;
+      --bg-elevated: #EEF1F7;
+      --bg-overlay: rgba(255, 255, 255, 0.92);
+      --accent-danger: #DC2626;
+      --accent-success: #059669;
+      --text-primary: #0F172A;
+      --text-secondary: #475569;
+      --text-muted: #64748B;
+      --shadow-card: 0 2px 16px rgba(15, 23, 42, 0.08);
+      --theater-bg: #F8FAFC;
+    }
+
+    html[data-theme="light"] body {
+      background:
+        linear-gradient(rgba(15, 23, 42, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15, 23, 42, 0.035) 1px, transparent 1px),
+        radial-gradient(circle at 50% 8%, rgba(var(--accent-primary-rgb), 0.16), rgba(var(--accent-primary-rgb), 0.04) 30%, transparent 58%),
+        linear-gradient(135deg, #F4F6FA 0%, #FFFFFF 55%, #E9EEF7 100%);
+    }
+
+    html[data-theme="light"] .field-textarea,
+    html[data-theme="light"] .session-key-value,
+    html[data-theme="light"] .theater-stage,
+    html[data-theme="light"] .stage-data-callout {
+      background-color: rgba(238, 241, 247, 0.86);
+    }
+
+    .theme-transition,
+    .theme-transition *,
+    .theme-transition *::before,
+    .theme-transition *::after {
+      transition: background-color 200ms ease, border-color 200ms ease, color 120ms ease, box-shadow 200ms ease !important;
+    }
+
     * {
       box-sizing: border-box;
     }
@@ -192,6 +245,11 @@
 
     button {
       -webkit-tap-highlight-color: transparent;
+    }
+
+    :focus-visible {
+      outline: 2px solid var(--accent-primary);
+      outline-offset: 3px;
     }
 
     .app-shell {
@@ -269,6 +327,53 @@
       letter-spacing: 0.08em;
       box-shadow: var(--shadow-glow);
       text-transform: uppercase;
+    }
+
+    .header-actions {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .header-tools {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .toolbar-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      min-height: 36px;
+      border: 1px solid var(--border-default);
+      border-radius: 8px;
+      padding: 8px 10px;
+      background: rgba(13, 22, 38, 0.62);
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-family: "Space Mono", monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      transition:
+        background var(--duration-fast) var(--ease-out),
+        border-color var(--duration-fast) var(--ease-out),
+        color var(--duration-fast) var(--ease-out),
+        transform var(--duration-fast) var(--ease-out);
+    }
+
+    .toolbar-btn:hover,
+    .toolbar-btn:focus-visible {
+      border-color: var(--accent-primary);
+      color: var(--accent-primary);
+      transform: translateY(-1px);
     }
 
     .badge-dot {
@@ -1047,6 +1152,366 @@
       background: rgba(13, 22, 38, 0.6);
     }
 
+    .skeleton-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 9998;
+      display: grid;
+      align-content: start;
+      gap: 24px;
+      padding: 28px max(16px, calc((100vw - 1160px) / 2));
+      background: var(--bg-base);
+    }
+
+    .skeleton-screen.hidden {
+      display: none;
+    }
+
+    .skeleton {
+      position: relative;
+      overflow: hidden;
+      border-radius: 8px;
+      background: var(--bg-elevated);
+    }
+
+    .skeleton::after,
+    .key-grid.loading::after {
+      position: absolute;
+      inset: 0;
+      content: "";
+      background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.08) 50%, transparent 100%);
+      background-size: 200% 100%;
+      animation: shimmer 1.5s infinite;
+    }
+
+    .key-grid.loading {
+      position: relative;
+      pointer-events: none;
+    }
+
+    .assistant-card {
+      display: grid;
+      gap: 10px;
+      padding-top: 4px;
+    }
+
+    .assistant-input-row {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 8px;
+    }
+
+    .assistant-input {
+      width: 100%;
+      min-width: 0;
+      border: 1px solid var(--border-default);
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+      caret-color: var(--accent-primary);
+      font-size: 13px;
+    }
+
+    .assistant-answer {
+      min-height: 86px;
+      border: 1px solid var(--border-default);
+      border-left: 3px solid var(--accent-primary);
+      border-radius: 8px;
+      padding: 11px 12px;
+      background: rgba(0, 245, 212, 0.045);
+      color: var(--text-secondary);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .suggested-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+    }
+
+    .suggested-pill,
+    .choice-pill {
+      border: 1px solid var(--border-default);
+      border-radius: 999px;
+      padding: 7px 9px;
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-size: 12px;
+      transition: all var(--duration-fast) var(--ease-out);
+    }
+
+    .suggested-pill:hover,
+    .choice-pill:hover,
+    .choice-pill.selected {
+      border-color: var(--accent-primary);
+      color: var(--accent-primary);
+      background: rgba(var(--accent-primary-rgb), 0.08);
+    }
+
+    .validation-hint {
+      min-height: 18px;
+      color: var(--text-muted);
+      font-size: 12px;
+    }
+
+    .validation-hint.valid {
+      color: var(--accent-success);
+    }
+
+    .validation-hint.invalid {
+      color: var(--accent-danger);
+    }
+
+    .privacy-note {
+      display: none;
+      margin-top: 8px;
+    }
+
+    .privacy-note.show {
+      display: block;
+    }
+
+    .toast-stack {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 9500;
+      display: grid;
+      gap: 10px;
+      width: min(340px, calc(100vw - 32px));
+    }
+
+    .toast {
+      border: 1px solid var(--border-active);
+      border-radius: 8px;
+      padding: 11px 12px;
+      background: var(--bg-overlay);
+      color: var(--text-primary);
+      box-shadow: var(--shadow-card);
+      font-size: 13px;
+      animation: slideUpFade 250ms var(--ease-out) both;
+    }
+
+    .modal-backdrop,
+    .tour-layer,
+    .challenge-overlay,
+    .shortcut-drawer-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 9000;
+      background: rgba(5, 10, 20, 0.72);
+      backdrop-filter: blur(4px);
+    }
+
+    .modal-backdrop[hidden],
+    .tour-layer[hidden],
+    .challenge-overlay[hidden],
+    .shortcut-drawer-backdrop[hidden] {
+      display: none;
+    }
+
+    .welcome-modal,
+    .tour-tooltip,
+    .shortcut-drawer,
+    .challenge-shell {
+      border: 1px solid var(--border-active);
+      border-radius: 8px;
+      background: var(--bg-overlay);
+      box-shadow: var(--shadow-card), var(--shadow-glow);
+    }
+
+    .welcome-modal {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      z-index: 9001;
+      width: min(560px, calc(100vw - 32px));
+      padding: 28px;
+      transform: translate(-50%, -50%);
+    }
+
+    .modal-title,
+    .drawer-title,
+    .challenge-title {
+      margin: 0 0 10px;
+      color: var(--text-primary);
+      font-family: "Space Mono", monospace;
+      letter-spacing: 0.03em;
+    }
+
+    .modal-copy {
+      color: var(--text-secondary);
+      line-height: 1.55;
+    }
+
+    .modal-actions,
+    .tour-nav,
+    .challenge-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .tour-spotlight {
+      position: fixed;
+      z-index: 9002;
+      border: 2px solid var(--accent-primary);
+      border-radius: 10px;
+      box-shadow: 0 0 0 9999px rgba(5, 10, 20, 0.66), 0 0 26px rgba(var(--accent-primary-rgb), 0.32);
+      pointer-events: none;
+    }
+
+    .tour-tooltip {
+      position: fixed;
+      z-index: 9003;
+      max-width: min(340px, calc(100vw - 32px));
+      padding: 14px;
+      color: var(--text-secondary);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .tour-progress {
+      margin-top: 10px;
+      color: var(--text-muted);
+      font-family: "Space Mono", monospace;
+      font-size: 11px;
+    }
+
+    .shortcut-drawer-backdrop {
+      background: rgba(5, 10, 20, 0.42);
+      backdrop-filter: none;
+    }
+
+    .shortcut-drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 9001;
+      width: min(430px, 100vw);
+      padding: 22px;
+      overflow: auto;
+      transform: translateX(100%);
+      transition: transform 260ms var(--ease-out);
+    }
+
+    .shortcut-drawer.open {
+      transform: translateX(0);
+    }
+
+    .shortcut-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 13px;
+    }
+
+    .shortcut-table td {
+      border-bottom: 1px solid var(--border-default);
+      padding: 9px 4px;
+      color: var(--text-secondary);
+    }
+
+    .shortcut-table kbd {
+      border: 1px solid var(--border-default);
+      border-radius: 6px;
+      padding: 3px 6px;
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+      font-family: "Fira Code", monospace;
+      font-size: 11px;
+    }
+
+    .challenge-overlay {
+      z-index: 9200;
+      overflow: auto;
+      padding: 28px 16px;
+    }
+
+    .challenge-shell {
+      width: min(920px, 100%);
+      margin: 0 auto;
+      padding: 24px;
+    }
+
+    .challenge-header {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 18px;
+    }
+
+    .challenge-progress {
+      height: 10px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: var(--bg-elevated);
+      margin-bottom: 14px;
+    }
+
+    .challenge-progress span {
+      display: block;
+      height: 100%;
+      width: 0;
+      background: var(--accent-primary);
+      transition: width 300ms var(--ease-out);
+    }
+
+    .challenge-card {
+      display: grid;
+      gap: 14px;
+      border: 1px solid var(--border-default);
+      border-radius: 8px;
+      padding: 18px;
+      background: rgba(5, 10, 20, 0.28);
+    }
+
+    .challenge-options {
+      display: grid;
+      gap: 8px;
+    }
+
+    .challenge-feedback {
+      min-height: 44px;
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: rgba(var(--accent-primary-rgb), 0.06);
+      color: var(--text-secondary);
+      line-height: 1.45;
+    }
+
+    .challenge-summary {
+      display: grid;
+      gap: 12px;
+      text-align: center;
+    }
+
+    .score-big {
+      color: var(--accent-primary);
+      font-family: "Space Mono", monospace;
+      font-size: clamp(34px, 7vw, 56px);
+      font-weight: 700;
+    }
+
+    .hidden-visually {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      overflow: hidden !important;
+      clip: rect(0, 0, 0, 0) !important;
+      white-space: nowrap !important;
+    }
+
+    .encrypt-nudge {
+      animation: nudgePulse 900ms var(--ease-in-out) 3;
+    }
+
     .process-theater {
       display: grid;
       gap: 12px;
@@ -1442,6 +1907,16 @@
       to { transform: rotate(360deg); }
     }
 
+    @keyframes shimmer {
+      from { background-position: 200% 0; }
+      to { background-position: -200% 0; }
+    }
+
+    @keyframes nudgePulse {
+      0%, 100% { box-shadow: none; }
+      50% { box-shadow: 0 0 0 5px rgba(var(--accent-primary-rgb), 0.16), 0 0 34px rgba(var(--accent-primary-rgb), 0.28); }
+    }
+
     @media (max-width: 980px) {
       .workspace-grid {
         grid-template-columns: 1fr;
@@ -1525,6 +2000,39 @@
         min-height: 260px;
         height: 260px;
       }
+
+      .theater-controls .speed-btn,
+      .theater-controls .explore-btn {
+        display: none;
+      }
+
+      .process-theater:not([hidden]) {
+        max-height: 980px;
+      }
+
+      .stage-body {
+        display: -webkit-box;
+        overflow: hidden;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+      }
+
+      .stage-body.expanded {
+        display: block;
+      }
+
+      .footer-note {
+        display: none;
+      }
+
+      .header-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .toolbar-btn .btn-label {
+        display: none;
+      }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -1545,21 +2053,80 @@
   </style>
 </head>
 <body data-mode="fernet">
+  <div class="skeleton-screen" id="skeletonScreen" aria-hidden="true">
+    <div class="skeleton" style="height:72px;"></div>
+    <div class="skeleton" style="height:64px;width:min(492px,100%);margin-inline:auto;"></div>
+    <div style="display:grid;grid-template-columns:minmax(0,680px) minmax(0,440px);gap:40px;">
+      <div class="skeleton" style="height:480px;"></div>
+      <div class="skeleton" style="height:480px;"></div>
+    </div>
+  </div>
+
+  <div id="srAnnouncer" class="hidden-visually" aria-live="polite" aria-atomic="true"></div>
+  <div class="toast-stack" id="toastStack" aria-live="polite"></div>
+
+  <div class="modal-backdrop" id="welcomeBackdrop" hidden>
+    <section class="welcome-modal" role="dialog" aria-modal="true" aria-labelledby="welcomeTitle">
+      <h1 class="modal-title" id="welcomeTitle">⟨▣⟩ ENCRYPTIFY</h1>
+      <p class="modal-copy">Welcome to your interactive cryptography lab. Encrypt real text with real algorithms, then watch exactly what happens to your data, step by step and byte by byte.</p>
+      <div class="modal-actions">
+        <button class="btn btn-primary" type="button" id="startTourBtn">▶ START TOUR</button>
+        <button class="btn btn-ghost" type="button" id="skipTourBtn">SKIP</button>
+      </div>
+      <p class="tagline" style="margin-top:18px;">Built for IT360 · Tunis Business School · 2025/26</p>
+    </section>
+  </div>
+
+  <div class="tour-layer" id="tourLayer" hidden>
+    <div class="tour-spotlight" id="tourSpotlight"></div>
+    <div class="tour-tooltip" id="tourTooltip"></div>
+  </div>
+
+  <div class="shortcut-drawer-backdrop" id="shortcutBackdrop" hidden></div>
+  <aside class="shortcut-drawer" id="shortcutDrawer" aria-label="Keyboard shortcut reference">
+    <h2 class="drawer-title">Keyboard Shortcuts</h2>
+    <table class="shortcut-table">
+      <tbody id="shortcutRows"></tbody>
+    </table>
+  </aside>
+
+  <section class="challenge-overlay" id="challengeOverlay" hidden>
+    <div class="challenge-shell" role="dialog" aria-modal="true" aria-labelledby="challengeModeTitle">
+      <div class="challenge-header">
+        <div>
+          <h1 class="challenge-title" id="challengeModeTitle">ENCRYPTIFY — CHALLENGE MODE</h1>
+          <div class="tagline" id="challengeMeta">Challenge 1 of 8 · Score: 0 pts</div>
+        </div>
+        <button class="mini-btn" type="button" id="challengeExitBtn">✕ EXIT</button>
+      </div>
+      <div class="challenge-progress"><span id="challengeProgressBar"></span></div>
+      <div id="challengeContent"></div>
+    </div>
+  </section>
+
   <main class="app-shell">
     <header class="app-header">
       <div class="brand-lockup">
         <div class="brand"><span class="logo-mark">⟨▣⟩</span> ENCRYPTIFY</div>
         <div class="tagline">Encrypt. Understand. Verify.</div>
       </div>
-      <div class="mode-badge" aria-live="polite"><span class="badge-dot"></span><span id="modeBadgeText">FERNET MODE</span></div>
+      <div class="header-actions">
+        <div class="mode-badge" aria-live="polite"><span class="badge-dot"></span><span id="modeBadgeText">FERNET MODE</span></div>
+        <div class="header-tools">
+          <button class="toolbar-btn" type="button" id="themeToggleBtn">☀ <span class="btn-label">Light</span></button>
+          <button class="toolbar-btn" type="button" id="shortcutBtn">⌨ <span class="btn-label">Shortcuts</span></button>
+          <button class="toolbar-btn" type="button" id="tourBtn">? <span class="btn-label">Tour</span></button>
+          <button class="toolbar-btn" type="button" id="challengeBtn">⚡ <span class="btn-label">Challenge</span></button>
+        </div>
+      </div>
     </header>
 
     <section class="mode-bar" aria-label="Encryption mode">
-      <div class="mode-selector" id="modeSelector">
+      <div class="mode-selector" id="modeSelector" role="tablist" aria-label="Encryption mode">
         <div class="mode-indicator" id="modeIndicator"></div>
-        <button class="mode-tab active" type="button" data-mode="fernet">⊕ FERNET</button>
-        <button class="mode-tab" type="button" data-mode="rsa">⟨⟩ RSA</button>
-        <button class="mode-tab" type="button" data-mode="hybrid">⊛ HYBRID</button>
+        <button class="mode-tab active" type="button" data-mode="fernet" role="tab" aria-selected="true" tabindex="0">⊕ FERNET</button>
+        <button class="mode-tab" type="button" data-mode="rsa" role="tab" aria-selected="false" tabindex="-1">⟨⟩ RSA</button>
+        <button class="mode-tab" type="button" data-mode="hybrid" role="tab" aria-selected="false" tabindex="-1">⊛ HYBRID</button>
       </div>
     </section>
 
@@ -1580,6 +2147,7 @@
             <span class="generated-badge" id="generatedBadge">✓ Generated</span>
           </div>
           <div class="key-grid" id="keyFields"></div>
+          <div class="callout callout-amber privacy-note" id="privacyNote">Keys are saved in your browser's local storage. Clear All removes them.</div>
         </div>
 
         <div class="actions">
@@ -1629,6 +2197,16 @@
             </thead>
             <tbody id="dataRows"></tbody>
           </table>
+        </section>
+
+        <section class="assistant-card">
+          <p class="field-label"><span class="label-accent">AI</span> ASK ABOUT CRYPTOGRAPHY</p>
+          <div class="assistant-input-row">
+            <input class="assistant-input" id="assistantInput" type="text" placeholder="Why does AES need an IV?" aria-label="Ask the cryptography assistant">
+            <button class="mini-btn" type="button" id="assistantSendBtn">↗</button>
+          </div>
+          <div class="assistant-answer" id="assistantAnswer">Ask a short question about the active mode. Answers stay focused on cryptography and Encryptify.</div>
+          <div class="suggested-row" id="assistantSuggestions"></div>
         </section>
 
         <section class="security-card">
@@ -1696,6 +2274,7 @@
           <div class="result-actions">
             <button class="mini-btn" type="button" id="copyResultBtn">⧉ COPY RESULT</button>
             <button class="mini-btn" type="button" id="encryptAgainBtn">↺ ENCRYPT AGAIN</button>
+            <button class="mini-btn" type="button" id="exportBundleBtn">📦 EXPORT BUNDLE</button>
           </div>
           <div class="callout callout-amber random-note" id="randomNote">⟳ Each encryption run produces a different ciphertext. This proves the operation used fresh randomness: an IV, an OAEP seed, or a new session key.</div>
         </div>
@@ -1710,6 +2289,7 @@
         <span>Transmit Artifacts</span>
         <span>Decrypt</span>
         <span>Clear</span>
+        <button class="mini-btn" type="button" id="footerChallengeBtn">⚡ Challenge Mode</button>
       </div>
     </footer>
   </main>
@@ -1723,6 +2303,25 @@
       encryptedSessionKey: "",
       completed: false,
       privateVisible: false,
+      lastResponse: null,
+      encryptCount: 0,
+      restoredSession: false,
+    };
+
+    const SESSION_KEY = "encryptify_session";
+    const VISITED_KEY = "encryptify_visited";
+    const THEME_KEY = "encryptify_theme";
+    const SESSION_TEMPLATE = {
+      mode: "fernet",
+      fernet: { key: "", plaintext: "", ciphertext: "" },
+      rsa: { public_key: "", private_key: "", plaintext: "", ciphertext: "" },
+      hybrid: { public_key: "", private_key: "", plaintext: "", ciphertext: "", encrypted_session_key: "" }
+    };
+
+    const assistantSuggestions = {
+      fernet: ["What is CBC mode?", "Why does HMAC matter?", "What is PKCS7 padding?"],
+      rsa: ["What makes RSA secure?", "Why is OAEP needed?", "What is the key size limit?"],
+      hybrid: ["Why use both algorithms?", "What is a session key?", "Is this how HTTPS works?"]
     };
 
     const modeMeta = {
@@ -1787,7 +2386,8 @@
       CORRUPTED_CIPHERTEXT: "The token may have been truncated or modified. Copy the full output.",
       PLAINTEXT_TOO_LONG: "Switch to Hybrid mode to encrypt messages of any length.",
       MISSING_FIELD: "Fill the highlighted field and try again.",
-      UNSUPPORTED_MODE: "Choose Fernet, RSA, or Hybrid from the mode selector."
+      UNSUPPORTED_MODE: "Choose Fernet, RSA, or Hybrid from the mode selector.",
+      SERVER_UNREACHABLE: "Start the FastAPI server and retry the operation."
     };
 
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -1814,6 +2414,34 @@
 
     function delay(ms, speed = 1) {
       return new Promise((resolve) => setTimeout(resolve, reducedMotion ? 1 : ms / speed));
+    }
+
+    function debounce(fn, wait = 300) {
+      let timer = null;
+      return (...args) => {
+        clearTimeout(timer);
+        timer = setTimeout(() => fn(...args), wait);
+      };
+    }
+
+    function safeStorageGet(key) {
+      try {
+        return localStorage.getItem(key);
+      } catch {
+        return null;
+      }
+    }
+
+    function safeStorageSet(key, value) {
+      try {
+        localStorage.setItem(key, value);
+      } catch {}
+    }
+
+    function safeStorageRemove(key) {
+      try {
+        localStorage.removeItem(key);
+      } catch {}
     }
 
     function typeColor(type) {
@@ -2529,7 +3157,7 @@
         this.modeBadge.textContent = `${mode} ${operation}`.toUpperCase();
         this.show();
         this.renderTrack();
-        if (this.explore || !autoplay) {
+        if (this.explore || !autoplay || this.isMobile()) {
           await this.runStage(0, { animate: false });
         } else {
           await this.play();
@@ -2539,6 +3167,7 @@
       show() {
         this.container.hidden = false;
         this.container.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "nearest" });
+        setTimeout(() => document.querySelector("#theaterCloseBtn")?.focus(), 120);
       }
 
       hide() {
@@ -2548,6 +3177,10 @@
 
       setSpeed(speed) {
         this.speed = Number(speed);
+      }
+
+      isMobile() {
+        return window.innerWidth < 768;
       }
 
       toggleExplore() {
@@ -2585,7 +3218,8 @@
         this.updateDescription(stage);
         syncExplanationStage(index);
         await this.crossfadeOut();
-        stage.render(this.stageEl, this.telemetry, this.speed);
+        if (this.isMobile() && stage.renderMobile) stage.renderMobile(this.stageEl, this.telemetry, this.speed);
+        else stage.render(this.stageEl, this.telemetry, this.speed);
         this.bindTooltips();
         await this.crossfadeIn();
         if (options.animate && stage.animate) {
@@ -2619,6 +3253,12 @@
         this.bodyEl.textContent = stage.body;
         this.currentCalloutHtml = stage.dataCallout ? stage.dataCallout(this.telemetry) : "";
         this.calloutEl.innerHTML = this.currentCalloutHtml;
+        if (els?.srAnnouncer) {
+          els.srAnnouncer.textContent = "";
+          requestAnimationFrame(() => {
+            els.srAnnouncer.textContent = `${stage.title}. ${stage.body}`;
+          });
+        }
       }
 
       crossfadeOut() {
@@ -2698,21 +3338,152 @@
       copyResultBtn: document.querySelector("#copyResultBtn"),
       copyResultIcon: document.querySelector("#copyResultIcon"),
       encryptAgainBtn: document.querySelector("#encryptAgainBtn"),
+      exportBundleBtn: document.querySelector("#exportBundleBtn"),
       randomNote: document.querySelector("#randomNote"),
       explainTitle: document.querySelector("#explainTitle"),
       explainSubtitle: document.querySelector("#explainSubtitle"),
       stepList: document.querySelector("#stepList"),
       dataRows: document.querySelector("#dataRows"),
       securityNote: document.querySelector("#securityNote"),
+      privacyNote: document.querySelector("#privacyNote"),
       speedBtns: [...document.querySelectorAll(".speed-btn")],
       theaterReplayBtn: document.querySelector("#theaterReplayBtn"),
       theaterCloseBtn: document.querySelector("#theaterCloseBtn"),
       exploreBtn: document.querySelector("#exploreBtn"),
       stagePrevBtn: document.querySelector("#stagePrevBtn"),
-      stageNextBtn: document.querySelector("#stageNextBtn")
+      stageNextBtn: document.querySelector("#stageNextBtn"),
+      stageBody: document.querySelector("#stageBody"),
+      themeToggleBtn: document.querySelector("#themeToggleBtn"),
+      shortcutBtn: document.querySelector("#shortcutBtn"),
+      tourBtn: document.querySelector("#tourBtn"),
+      challengeBtn: document.querySelector("#challengeBtn"),
+      footerChallengeBtn: document.querySelector("#footerChallengeBtn"),
+      welcomeBackdrop: document.querySelector("#welcomeBackdrop"),
+      startTourBtn: document.querySelector("#startTourBtn"),
+      skipTourBtn: document.querySelector("#skipTourBtn"),
+      tourLayer: document.querySelector("#tourLayer"),
+      tourSpotlight: document.querySelector("#tourSpotlight"),
+      tourTooltip: document.querySelector("#tourTooltip"),
+      shortcutBackdrop: document.querySelector("#shortcutBackdrop"),
+      shortcutDrawer: document.querySelector("#shortcutDrawer"),
+      shortcutRows: document.querySelector("#shortcutRows"),
+      challengeOverlay: document.querySelector("#challengeOverlay"),
+      challengeExitBtn: document.querySelector("#challengeExitBtn"),
+      challengeMeta: document.querySelector("#challengeMeta"),
+      challengeProgressBar: document.querySelector("#challengeProgressBar"),
+      challengeContent: document.querySelector("#challengeContent"),
+      assistantInput: document.querySelector("#assistantInput"),
+      assistantSendBtn: document.querySelector("#assistantSendBtn"),
+      assistantAnswer: document.querySelector("#assistantAnswer"),
+      assistantSuggestions: document.querySelector("#assistantSuggestions"),
+      toastStack: document.querySelector("#toastStack"),
+      skeletonScreen: document.querySelector("#skeletonScreen"),
+      srAnnouncer: document.querySelector("#srAnnouncer")
     };
 
     const processTheater = new ProcessTheater();
+    let sessionCache = typeof structuredClone === "function" ? structuredClone(SESSION_TEMPLATE) : JSON.parse(JSON.stringify(SESSION_TEMPLATE));
+    let restoringSession = false;
+    let firstEncryptNudgeTimer = null;
+
+    function showToast(message, type = "info", duration = 2600) {
+      const toast = document.createElement("div");
+      toast.className = "toast";
+      toast.textContent = message;
+      toast.dataset.type = type;
+      els.toastStack.appendChild(toast);
+      setTimeout(() => {
+        toast.animate([{ opacity: 1 }, { opacity: 0, transform: "translateY(8px)" }], { duration: 180, fill: "forwards" }).finished
+          .then(() => toast.remove());
+      }, duration);
+    }
+
+    function updateThemeButton() {
+      const theme = document.documentElement.getAttribute("data-theme") || "dark";
+      els.themeToggleBtn.innerHTML = theme === "light" ? "🌙 <span class=\"btn-label\">Dark</span>" : "☀ <span class=\"btn-label\">Light</span>";
+      document.querySelector('meta[name="theme-color"]')?.setAttribute("content", theme === "light" ? "#F4F6FA" : "#050A14");
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute("data-theme") || "dark";
+      const next = current === "light" ? "dark" : "light";
+      document.documentElement.classList.add("theme-transition");
+      document.documentElement.setAttribute("data-theme", next);
+      safeStorageSet(THEME_KEY, next);
+      updateThemeButton();
+      setTimeout(() => document.documentElement.classList.remove("theme-transition"), 320);
+    }
+
+    function persistCurrentMode() {
+      if (restoringSession) return;
+      const modeState = sessionCache[appState.mode];
+      if (!modeState) return;
+      if (appState.mode === "fernet") modeState.key = fieldValue("fernetKey");
+      if (appState.mode === "rsa") {
+        modeState.public_key = fieldValue("publicKey");
+        modeState.private_key = fieldValue("privateKey");
+      }
+      if (appState.mode === "hybrid") {
+        modeState.public_key = fieldValue("publicKey");
+        modeState.private_key = fieldValue("privateKey");
+        modeState.encrypted_session_key = fieldValue("encryptedSessionKey");
+      }
+      if (appState.lastAction === "decrypt") {
+        modeState.ciphertext = els.textInput.value;
+      } else {
+        modeState.plaintext = els.textInput.value;
+      }
+      if (appState.resultText) {
+        if (appState.lastAction === "encrypt") modeState.ciphertext = appState.resultText;
+        else modeState.plaintext = appState.resultText;
+      }
+      sessionCache.mode = appState.mode;
+    }
+
+    const saveSession = debounce(() => {
+      persistCurrentMode();
+      safeStorageSet(SESSION_KEY, JSON.stringify(sessionCache));
+    }, 500);
+
+    function applySessionToMode(mode) {
+      const modeState = sessionCache[mode] || {};
+      restoringSession = true;
+      if (mode === "fernet" && field("fernetKey")) field("fernetKey").value = modeState.key || "";
+      if (["rsa", "hybrid"].includes(mode) && field("publicKey")) field("publicKey").value = modeState.public_key || "";
+      if (["rsa", "hybrid"].includes(mode) && field("privateKey")) field("privateKey").value = modeState.private_key || "";
+      if (mode === "hybrid" && field("encryptedSessionKey")) field("encryptedSessionKey").value = modeState.encrypted_session_key || "";
+      els.textInput.value = modeState.plaintext || modeState.ciphertext || "";
+      appState.lastAction = modeState.plaintext ? "encrypt" : "decrypt";
+      syncInputContext(appState.lastAction);
+      updateCharCount();
+      restoringSession = false;
+      els.privacyNote.classList.toggle("show", hasAnyKeyMaterial(modeState));
+    }
+
+    function hasAnyKeyMaterial(modeState) {
+      return Boolean(modeState.key || modeState.public_key || modeState.private_key || modeState.encrypted_session_key);
+    }
+
+    function restoreSession() {
+      const raw = safeStorageGet(SESSION_KEY);
+      if (!raw) return;
+      try {
+        sessionCache = { ...JSON.parse(JSON.stringify(SESSION_TEMPLATE)), ...JSON.parse(raw) };
+      } catch {
+        return;
+      }
+      const mode = sessionCache.mode || "fernet";
+      appState.restoredSession = true;
+      if (mode !== appState.mode) setMode(mode, { preserveCurrent: false });
+      else applySessionToMode(mode);
+      showToast("Session restored", "info", 2000);
+    }
+
+    function clearSession() {
+      sessionCache = JSON.parse(JSON.stringify(SESSION_TEMPLATE));
+      safeStorageRemove(SESSION_KEY);
+      els.privacyNote.classList.remove("show");
+    }
 
     function keyFieldTemplate(id, label, placeholder, options = {}) {
       const secretBadge = options.secret ? "<span class=\"secret-badge\">Keep this secret</span>" : "";
@@ -2733,6 +3504,7 @@
             <button class="btn-copy" type="button" data-copy="${id}" aria-label="Copy ${label}">⧉<span class="tooltip">Copied!</span></button>
             ${mask}
           </div>
+          <div class="validation-hint" data-validation-for="${id}" aria-live="polite"></div>
         </div>
       `;
     }
@@ -2763,6 +3535,10 @@
           appState.privateVisible = !appState.privateVisible;
           renderKeyFieldsPreservingValues();
         });
+      });
+      document.querySelectorAll("[data-key]").forEach((fieldEl) => {
+        fieldEl.addEventListener("input", saveSession);
+        fieldEl.addEventListener("blur", () => validateFieldFormat(fieldEl));
       });
     }
 
@@ -2826,26 +3602,34 @@
       els.modeIndicator.style.transform = `translateX(${active.offsetLeft - 4}px)`;
     }
 
-    function setMode(mode) {
+    function setMode(mode, options = {}) {
       if (mode === appState.mode) return;
+      if (options.preserveCurrent !== false) {
+        persistCurrentMode();
+      }
       appState.mode = mode;
       document.body.dataset.mode = mode;
       appState.privateVisible = false;
       appState.completed = false;
-      els.modeTabs.forEach((tab) => tab.classList.toggle("active", tab.dataset.mode === mode));
+      els.modeTabs.forEach((tab) => {
+        const active = tab.dataset.mode === mode;
+        tab.classList.toggle("active", active);
+        tab.setAttribute("aria-selected", active ? "true" : "false");
+        tab.setAttribute("tabindex", active ? "0" : "-1");
+      });
       els.keyFields.classList.add("switching");
-      setTimeout(() => {
-        renderKeyFields();
-        els.keyFields.classList.remove("switching");
-      }, 180);
-      els.textInput.value = "";
+      renderKeyFields();
+      applySessionToMode(mode);
+      setTimeout(() => els.keyFields.classList.remove("switching"), 180);
       updateCharCount();
       hideResult();
       processTheater.hide();
       hideError();
       renderExplanation(false);
-      syncInputContext("encrypt");
+      syncInputContext(appState.lastAction || "encrypt");
+      renderAssistantSuggestions();
       updateModeIndicator();
+      setTimeout(() => els.textInput.focus(), 220);
     }
 
     function syncInputContext(action) {
@@ -2926,17 +3710,64 @@
       return body;
     }
 
-    async function apiPost(url, body = {}) {
-      const response = await fetch(url, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body)
-      });
-      const data = await response.json();
-      if (!data.success) {
-        throw data;
+    async function apiPost(url, body = {}, options = {}) {
+      const controller = new AbortController();
+      const timeoutMs = options.timeoutMs || 10000;
+      const timeout = setTimeout(() => {
+        showToast("The server is taking longer than expected. RSA operations can take a moment.", "info", 5000);
+      }, timeoutMs);
+      try {
+        const response = await fetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(body),
+          signal: controller.signal
+        });
+        clearTimeout(timeout);
+        const data = await response.json();
+        if (!data.success && data.success !== undefined) {
+          throw data;
+        }
+        return data;
+      } catch (error) {
+        clearTimeout(timeout);
+        if (error instanceof TypeError) {
+          throw {
+            success: false,
+            error: "Cannot connect to the encryption server. Make sure it is running: uvicorn main:app --reload --port 8000",
+            error_code: "SERVER_UNREACHABLE"
+          };
+        }
+        throw error;
       }
-      return data;
+    }
+
+    function validationFieldName(id) {
+      const map = {
+        fernetKey: "fernet_key",
+        publicKey: "public_key",
+        privateKey: "private_key",
+        encryptedSessionKey: "encrypted_session_key"
+      };
+      return map[id];
+    }
+
+    async function validateFieldFormat(fieldEl) {
+      const value = fieldEl.value.trim();
+      const validationEl = document.querySelector(`[data-validation-for="${fieldEl.id}"]`);
+      const apiField = validationFieldName(fieldEl.id);
+      if (!validationEl || !apiField || !value) {
+        if (validationEl) validationEl.textContent = "";
+        return;
+      }
+      try {
+        const result = await apiPost("/api/validate", { field: apiField, value }, { timeoutMs: 5000 });
+        validationEl.textContent = result.valid ? `✓ ${result.hint || "Valid format."}` : `✗ ${result.hint || "Invalid format."}`;
+        validationEl.classList.toggle("valid", Boolean(result.valid));
+        validationEl.classList.toggle("invalid", !result.valid);
+      } catch {
+        validationEl.textContent = "";
+      }
     }
 
     function setButtonLoading(button, loading) {
@@ -2954,6 +3785,7 @@
       hideResult();
       processTheater.hide();
       setButtonLoading(els.generateBtn, true);
+      els.keyFields.classList.add("loading");
       try {
         const endpoint = appState.mode === "fernet" ? "/api/fernet/key" : "/api/rsa/keypair";
         const data = await apiPost(endpoint);
@@ -2969,10 +3801,13 @@
           setTimeout(() => el.classList.remove("pulse-border"), 760);
         });
         flashButton(els.generateBtn, "success");
+        els.privacyNote.classList.add("show");
+        saveSession();
       } catch (err) {
         flashButton(els.generateBtn, "error");
         showError("KEY GENERATION FAILED", err.error || "Unable to generate keys.", err.error_code);
       } finally {
+        els.keyFields.classList.remove("loading");
         setButtonLoading(els.generateBtn, false);
       }
     }
@@ -2988,12 +3823,16 @@
       try {
         const data = await apiPost(`/api/${action}`, body);
         appState.lastPayload = body;
+        appState.lastResponse = data;
         appState.resultText = action === "encrypt" ? data.ciphertext : data.plaintext;
         appState.encryptedSessionKey = data.encrypted_session_key || "";
+        if (action === "encrypt") appState.encryptCount += 1;
         flashButton(button, "success");
         renderExplanation(true);
         processTheater.load(appState.mode, action, data.telemetry || {}, true);
         renderResult(action, options.scramble);
+        persistCurrentMode();
+        saveSession();
       } catch (err) {
         flashButton(button, "error");
         if (err.telemetry) {
@@ -3061,6 +3900,8 @@
       hideError();
       renderExplanation(false);
       syncInputContext("encrypt");
+      clearSession();
+      showToast("Session cleared", "info", 1600);
     }
 
     function copyValue(source, button) {
@@ -3120,10 +3961,464 @@
       }, duration / steps);
     }
 
+    function renderAssistantSuggestions() {
+      els.assistantSuggestions.innerHTML = (assistantSuggestions[appState.mode] || []).map((question) =>
+        `<button class="suggested-pill" type="button" data-question="${escapeHtml(question)}">${escapeHtml(question)}</button>`
+      ).join("");
+      els.assistantSuggestions.querySelectorAll("[data-question]").forEach((button) => {
+        button.addEventListener("click", () => {
+          els.assistantInput.value = button.dataset.question;
+          askAssistant();
+        });
+      });
+    }
+
+    async function askAssistant() {
+      const question = els.assistantInput.value.trim();
+      if (!question) {
+        showToast("Ask a cryptography question first.", "info");
+        return;
+      }
+      els.assistantAnswer.innerHTML = "<span class=\"btn-dots\" style=\"display:flex\"><span>●</span><span>●</span><span>●</span></span>";
+      try {
+        const data = await apiPost("/api/assistant", {
+          question,
+          mode: appState.mode,
+          last_operation: appState.lastAction
+        }, { timeoutMs: 12000 });
+        await typeInto(els.assistantAnswer, data.answer || "Unable to answer right now.", 12, 220);
+      } catch (err) {
+        els.assistantAnswer.textContent = err.error || "Assistant unavailable. Try again later.";
+      }
+    }
+
+    function formatBundle() {
+      const mode = appState.mode.toUpperCase();
+      const operation = (appState.lastAction || "encrypt").toUpperCase();
+      const now = new Date().toLocaleString();
+      const inputLabel = operation === "ENCRYPT" ? "Plaintext" : "Ciphertext";
+      const outputLabel = operation === "ENCRYPT" ? "Ciphertext / Encrypted Message" : "Plaintext";
+      const publicKey = fieldValue("publicKey");
+      const privateKey = fieldValue("privateKey");
+      const fernetKey = fieldValue("fernetKey");
+      const sessionKey = appState.encryptedSessionKey || fieldValue("encryptedSessionKey");
+      return `==================================================
+ENCRYPTIFY — OPERATION BUNDLE
+Generated: ${now}
+Mode:      ${mode}
+==================================================
+
+OPERATION: ${operation}
+
+INPUT
+-----
+${inputLabel}:
+  ${els.textInput.value || "[not available]"}
+
+OUTPUT
+------
+${outputLabel}:
+  ${appState.resultText || "[not available]"}
+${sessionKey ? `\nEncrypted Session Key:\n  ${sessionKey}\n` : ""}
+KEYS
+----
+${fernetKey ? `Fernet Key:\n  ${fernetKey}\n` : ""}
+${publicKey ? `RSA Public Key:\n${publicKey}\n` : ""}
+${privateKey ? "RSA Private Key:\n  [REDACTED — copy manually if needed]\n" : ""}
+
+DECRYPTION INSTRUCTIONS
+-----------------------
+1. Open Encryptify and choose ${mode} mode.
+2. Paste the encrypted output into the ciphertext field.
+${mode === "HYBRID" ? "3. Paste the encrypted session key into the session key field.\n4. Paste the receiver private key.\n5. Click DECRYPT." : "3. Paste the matching key.\n4. Click DECRYPT."}
+
+CRYPTOGRAPHIC PARAMETERS
+------------------------
+Fernet: AES-128-CBC + HMAC-SHA256
+RSA:    RSA-2048 with OAEP-SHA256 padding
+Hybrid: Fernet message encryption + RSA key transport
+
+==================================================
+Encryptify · IT360 · Tunis Business School · 2025/2026
+==================================================`;
+    }
+
+    function exportBundleIfAvailable() {
+      if (!appState.resultText) {
+        showToast("Run an operation before exporting a bundle.", "info");
+        return;
+      }
+      const blob = new Blob([formatBundle()], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = url;
+      link.download = `encryptify-${appState.mode}-${Date.now()}.txt`;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(url);
+      showToast("Bundle exported", "info");
+    }
+
+    const tourSteps = [
+      { selector: "#modeSelector", text: "Start here. Choose Fernet for one shared key, RSA for a key pair, or Hybrid to combine both.", position: "below" },
+      { selector: "#generateBtn", text: "Generate cryptographically secure keys for the selected mode.", position: "above" },
+      { selector: "#textInput", text: "Type any text here: a secret message, a recovery code, or anything you want to protect.", position: "right" },
+      { selector: "#encryptBtn", text: "Click Encrypt to open the Process Theater and watch the real operation unfold.", position: "above" },
+      { selector: ".explain-panel", text: "This panel explains the algorithm as it runs. You can also ask the assistant focused crypto questions.", position: "left" }
+    ];
+
+    const tourState = { current: 0 };
+
+    function openWelcome() {
+      els.welcomeBackdrop.hidden = false;
+      trapFocus(els.welcomeBackdrop);
+    }
+
+    function closeWelcome(markVisited = true) {
+      els.welcomeBackdrop.hidden = true;
+      if (markVisited) safeStorageSet(VISITED_KEY, "1");
+    }
+
+    function startTour() {
+      closeWelcome(false);
+      tourState.current = 0;
+      els.tourLayer.hidden = false;
+      showTourStep(0);
+    }
+
+    function showTourStep(index) {
+      const step = tourSteps[index];
+      const target = document.querySelector(step.selector);
+      if (!target) return;
+      const rect = target.getBoundingClientRect();
+      const padding = 8;
+      Object.assign(els.tourSpotlight.style, {
+        left: `${Math.max(8, rect.left - padding)}px`,
+        top: `${Math.max(8, rect.top - padding)}px`,
+        width: `${Math.min(window.innerWidth - 16, rect.width + padding * 2)}px`,
+        height: `${rect.height + padding * 2}px`
+      });
+      els.tourTooltip.innerHTML = `
+        <p>${escapeHtml(step.text)}</p>
+        <div class="tour-nav">
+          ${index > 0 ? "<button class=\"mini-btn\" type=\"button\" data-tour=\"prev\">← Back</button>" : ""}
+          <button class="mini-btn" type="button" data-tour="${index === tourSteps.length - 1 ? "finish" : "next"}">${index === tourSteps.length - 1 ? "Finish Tour" : "Next →"}</button>
+          <button class="mini-btn" type="button" data-tour="finish">Skip</button>
+        </div>
+        <div class="tour-progress">${index + 1} / ${tourSteps.length}</div>
+      `;
+      positionTourTooltip(rect, step.position);
+      els.tourTooltip.querySelectorAll("[data-tour]").forEach((button) => {
+        button.addEventListener("click", () => {
+          const action = button.dataset.tour;
+          if (action === "next") showTourStep(++tourState.current);
+          if (action === "prev") showTourStep(--tourState.current);
+          if (action === "finish") finishTour();
+        });
+      });
+    }
+
+    function positionTourTooltip(rect, position) {
+      const tooltip = els.tourTooltip;
+      const gap = 14;
+      let left = rect.left;
+      let top = rect.bottom + gap;
+      if (position === "above") top = rect.top - 150;
+      if (position === "right") left = rect.right + gap;
+      if (position === "left") left = rect.left - 360;
+      left = Math.max(16, Math.min(window.innerWidth - 356, left));
+      top = Math.max(16, Math.min(window.innerHeight - 180, top));
+      tooltip.style.left = `${left}px`;
+      tooltip.style.top = `${top}px`;
+    }
+
+    function finishTour() {
+      els.tourLayer.hidden = true;
+      safeStorageSet(VISITED_KEY, "1");
+      scheduleFirstEncryptNudge();
+    }
+
+    function scheduleFirstEncryptNudge() {
+      clearTimeout(firstEncryptNudgeTimer);
+      if (appState.encryptCount > 0 || safeStorageGet("encryptify_nudged")) return;
+      firstEncryptNudgeTimer = setTimeout(() => {
+        if (appState.encryptCount === 0) {
+          els.encryptBtn.classList.add("encrypt-nudge");
+          safeStorageSet("encryptify_nudged", "1");
+          setTimeout(() => els.encryptBtn.classList.remove("encrypt-nudge"), 3000);
+        }
+      }, 30000);
+    }
+
+    function trapFocus(container) {
+      const focusable = [...container.querySelectorAll("button, input, textarea, select, a[href], [tabindex]:not([tabindex='-1'])")];
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      const handler = (event) => {
+        if (event.key !== "Tab") return;
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first.focus();
+        }
+      };
+      container.addEventListener("keydown", handler, { once: false });
+      first.focus();
+    }
+
+    const shortcutList = [
+      ["Ctrl+Enter", "Encrypt"],
+      ["Ctrl+Shift+Enter", "Decrypt"],
+      ["Ctrl+G", "Generate keys"],
+      ["Ctrl+L", "Clear all fields"],
+      ["1 / 2 / 3", "Switch modes"],
+      ["Escape", "Close theater, modal, or drawer"],
+      ["← / →", "Previous / next theater stage"],
+      ["?", "Open shortcut reference"],
+      ["Ctrl+D", "Toggle light or dark mode"],
+      ["Ctrl+E", "Export bundle"]
+    ];
+
+    function renderShortcuts() {
+      els.shortcutRows.innerHTML = shortcutList.map(([keys, action]) => `
+        <tr><td><kbd>${escapeHtml(keys)}</kbd></td><td>${escapeHtml(action)}</td></tr>
+      `).join("");
+    }
+
+    function toggleShortcutPanel(force) {
+      const open = typeof force === "boolean" ? force : !els.shortcutDrawer.classList.contains("open");
+      els.shortcutBackdrop.hidden = !open;
+      els.shortcutDrawer.classList.toggle("open", open);
+    }
+
+    const challenges = [
+      { mode: "FERNET", title: "Padding Count", points: 50, prompt: "Encrypt HELLO with Fernet. How many PKCS7 padding bytes are added to make a 16-byte AES block?", options: ["5", "11", "16", "No padding"], answer: "11", hint: "HELLO is 5 bytes. AES-CBC needs 16-byte blocks.", explanation: "PKCS7 adds 11 bytes, each with value 0x0B, because 5 + 11 = 16." },
+      { mode: "FERNET", title: "Key Matching", points: 50, prompt: "A Fernet token can only be decrypted with which key?", options: ["Any Fernet key", "The same key used to encrypt", "Only an RSA public key", "No key"], answer: "The same key used to encrypt", hint: "Fernet is symmetric.", explanation: "Fernet uses one shared secret key for both encryption and decryption." },
+      { mode: "FERNET", title: "Spot the Forgery", points: 80, prompt: "A token was modified and decryption fails before plaintext appears. Which component catches the tampering?", options: ["IV", "Ciphertext", "HMAC", "Timestamp"], answer: "HMAC", hint: "Integrity is checked before decryption releases text.", explanation: "Fernet verifies HMAC over the token components; a mismatch stops decryption." },
+      { mode: "FERNET", title: "Randomization Proof", points: 80, prompt: "Encrypting the same plaintext three times with Fernet produces different tokens. Why?", options: ["A fresh random IV", "The key changes automatically", "Base64 is random", "The timestamp is secret"], answer: "A fresh random IV", hint: "Look at stage 2 in the theater.", explanation: "Fernet uses a fresh IV, so the first AES-CBC block changes even for identical plaintext." },
+      { mode: "RSA", title: "Key Pair Roles", points: 80, prompt: "Which RSA key should be shared so others can encrypt a message to you?", options: ["Private key", "Public key", "Fernet key", "HMAC tag"], answer: "Public key", hint: "The private key must stay private.", explanation: "The public key encrypts; only the private key decrypts." },
+      { mode: "RSA", title: "Size Limit", points: 80, prompt: "A 200-byte message fails in direct RSA-2048 OAEP mode. What should you use instead?", options: ["Hybrid mode", "A shorter HMAC", "Base64 twice", "No padding"], answer: "Hybrid mode", hint: "RSA should wrap keys, not long messages.", explanation: "Hybrid mode encrypts long text with Fernet and uses RSA only for the short session key." },
+      { mode: "HYBRID", title: "Hybrid Unwrap", points: 120, prompt: "To decrypt a Hybrid bundle, what happens first?", options: ["RSA private key unwraps the session key", "HMAC is ignored", "Public key decrypts the message", "Plaintext is Base64 decoded"], answer: "RSA private key unwraps the session key", hint: "The Fernet message needs its session key.", explanation: "The RSA private key recovers the Fernet session key; that key decrypts the message." },
+      { mode: "ALL", title: "Algorithm Selection", points: 120, prompt: "Which mode is best for encrypting long text for someone else without sharing a Fernet key first?", options: ["Fernet only", "RSA direct", "Hybrid", "Plain Base64"], answer: "Hybrid", hint: "You need speed and key transport.", explanation: "Hybrid combines Fernet's long-message speed with RSA's public-key key transport." }
+    ];
+
+    const challengeState = {
+      index: 0,
+      score: 0,
+      hints: 0,
+      results: [],
+      selected: ""
+    };
+
+    function openChallengeMode(retryMissed = false) {
+      if (!retryMissed) {
+        challengeState.index = 0;
+        challengeState.score = 0;
+        challengeState.hints = 0;
+        challengeState.results = [];
+      }
+      els.challengeOverlay.hidden = false;
+      renderChallenge();
+    }
+
+    function closeChallengeMode() {
+      els.challengeOverlay.hidden = true;
+    }
+
+    function renderChallenge() {
+      if (challengeState.index >= challenges.length) {
+        renderChallengeSummary();
+        return;
+      }
+      const challenge = challenges[challengeState.index];
+      challengeState.selected = "";
+      const progress = (challengeState.index / challenges.length) * 100;
+      els.challengeProgressBar.style.width = `${progress}%`;
+      els.challengeMeta.textContent = `Challenge ${challengeState.index + 1} of ${challenges.length} · Score: ${challengeState.score} pts`;
+      els.challengeContent.innerHTML = `
+        <article class="challenge-card">
+          <div class="field-label"><span class="label-accent">${challenge.mode}</span> Challenge ${challengeState.index + 1} — ${escapeHtml(challenge.title)}</div>
+          <p class="stage-body" style="-webkit-line-clamp:unset;">${escapeHtml(challenge.prompt)}</p>
+          <div class="challenge-options">
+            ${challenge.options.map((option) => `<button class="choice-pill" type="button" data-answer="${escapeHtml(option)}">${escapeHtml(option)}</button>`).join("")}
+          </div>
+          <div class="challenge-actions">
+            <button class="mini-btn" type="button" id="hintBtn">🔍 Use a Hint (-30 pts)</button>
+            <button class="mini-btn" type="button" id="submitChallengeBtn">Submit Answer</button>
+          </div>
+          <div class="challenge-feedback" id="challengeFeedback">Choose an answer to continue.</div>
+        </article>
+      `;
+      els.challengeContent.querySelectorAll("[data-answer]").forEach((button) => {
+        button.addEventListener("click", () => {
+          challengeState.selected = button.dataset.answer;
+          els.challengeContent.querySelectorAll("[data-answer]").forEach((candidate) => candidate.classList.toggle("selected", candidate === button));
+        });
+      });
+      document.querySelector("#hintBtn").addEventListener("click", () => {
+        challengeState.score = Math.max(0, challengeState.score - 30);
+        challengeState.hints += 1;
+        document.querySelector("#challengeFeedback").textContent = challenge.hint;
+        els.challengeMeta.textContent = `Challenge ${challengeState.index + 1} of ${challenges.length} · Score: ${challengeState.score} pts`;
+      });
+      document.querySelector("#submitChallengeBtn").addEventListener("click", submitChallengeAnswer);
+    }
+
+    function submitChallengeAnswer() {
+      const challenge = challenges[challengeState.index];
+      const correct = challengeState.selected === challenge.answer;
+      const earned = correct ? challenge.points : 0;
+      challengeState.score += earned;
+      challengeState.results.push({ title: challenge.title, earned, max: challenge.points, correct });
+      const feedback = document.querySelector("#challengeFeedback");
+      feedback.textContent = `${correct ? "Correct." : `Incorrect. Correct answer: ${challenge.answer}.`} ${challenge.explanation}`;
+      feedback.style.color = correct ? "var(--accent-success)" : "var(--accent-danger)";
+      setTimeout(() => {
+        challengeState.index += 1;
+        renderChallenge();
+      }, 1400);
+    }
+
+    function renderChallengeSummary() {
+      const max = challenges.reduce((sum, item) => sum + item.points, 0);
+      const percent = Math.round((challengeState.score / max) * 100);
+      els.challengeProgressBar.style.width = "100%";
+      els.challengeMeta.textContent = "Challenge complete";
+      els.challengeContent.innerHTML = `
+        <section class="challenge-summary">
+          <h2 class="challenge-title">CHALLENGE COMPLETE</h2>
+          <div class="score-big">${challengeState.score} / ${max} pts</div>
+          <div class="challenge-progress"><span style="width:${percent}%"></span></div>
+          <p class="stage-body" style="-webkit-line-clamp:unset;">${percent}% · Correct on first try: ${challengeState.results.filter((r) => r.correct).length} / ${challenges.length} · Hints used: ${challengeState.hints}</p>
+          <div class="challenge-actions" style="justify-content:center;">
+            <button class="mini-btn" type="button" id="exportResultsBtn">📄 Export Results PDF</button>
+            <button class="mini-btn" type="button" id="retryChallengeBtn">↺ Retry</button>
+            <button class="mini-btn" type="button" id="closeChallengeSummaryBtn">✕ Exit</button>
+          </div>
+        </section>
+      `;
+      document.querySelector("#exportResultsBtn").addEventListener("click", exportChallengeResults);
+      document.querySelector("#retryChallengeBtn").addEventListener("click", () => openChallengeMode(false));
+      document.querySelector("#closeChallengeSummaryBtn").addEventListener("click", closeChallengeMode);
+    }
+
+    function exportChallengeResults() {
+      const max = challenges.reduce((sum, item) => sum + item.points, 0);
+      const html = `<!DOCTYPE html><html><head><title>Encryptify Challenge Results</title><style>body{font-family:monospace;max-width:720px;margin:40px auto;}table{width:100%;border-collapse:collapse}td,th{padding:8px;border:1px solid #ccc;text-align:left}.score{font-size:44px;font-weight:bold}@media print{button{display:none}}</style></head><body><h1>Encryptify — Challenge Results</h1><p>Student: <input placeholder="Enter your name"></p><p>Date: ${new Date().toLocaleString()}</p><div class="score">${challengeState.score} / ${max} pts</div><table><tr><th>#</th><th>Challenge</th><th>Score</th><th>Correct</th></tr>${challengeState.results.map((result, index) => `<tr><td>${index + 1}</td><td>${escapeHtml(result.title)}</td><td>${result.earned} / ${result.max}</td><td>${result.correct ? "✓" : "✗"}</td></tr>`).join("")}</table><p>Generated by Encryptify · IT360 Tunis Business School · 2025/2026</p><button onclick="window.print()">Print / Save as PDF</button></body></html>`;
+      const win = window.open("", "_blank");
+      if (!win) return;
+      win.document.write(html);
+      win.document.close();
+    }
+
+    function handleKeyboardShortcuts(event) {
+      const inInput = ["INPUT", "TEXTAREA"].includes(document.activeElement?.tagName);
+      const key = event.key.toLowerCase();
+      if (event.ctrlKey && event.key === "Enter" && !event.shiftKey) {
+        event.preventDefault();
+        els.encryptBtn.click();
+      } else if (event.ctrlKey && event.shiftKey && event.key === "Enter") {
+        event.preventDefault();
+        els.decryptBtn.click();
+      } else if (event.ctrlKey && key === "g") {
+        event.preventDefault();
+        els.generateBtn.click();
+      } else if (event.ctrlKey && key === "l") {
+        event.preventDefault();
+        clearAll();
+      } else if (event.ctrlKey && key === "d") {
+        event.preventDefault();
+        toggleTheme();
+      } else if (event.ctrlKey && key === "e") {
+        event.preventDefault();
+        exportBundleIfAvailable();
+      } else if (!inInput && ["1", "2", "3"].includes(event.key)) {
+        setMode({ "1": "fernet", "2": "rsa", "3": "hybrid" }[event.key]);
+      } else if (event.key === "?") {
+        event.preventDefault();
+        toggleShortcutPanel();
+      } else if (event.key === "Escape") {
+        closeTopLayer();
+      } else if (!inInput && event.key === "ArrowLeft" && !processTheater.container.hidden) {
+        processTheater.goTo(processTheater.currentStage - 1, false);
+      } else if (!inInput && event.key === "ArrowRight" && !processTheater.container.hidden) {
+        processTheater.goTo(processTheater.currentStage + 1, false);
+      }
+    }
+
+    function closeTopLayer() {
+      if (!els.challengeOverlay.hidden) return closeChallengeMode();
+      if (!els.tourLayer.hidden) return finishTour();
+      if (!els.welcomeBackdrop.hidden) return closeWelcome(true);
+      if (els.shortcutDrawer.classList.contains("open")) return toggleShortcutPanel(false);
+      if (!processTheater.container.hidden) return processTheater.hide();
+    }
+
+    function checkCompatibility() {
+      const checks = [
+        ["Web Animations API", () => typeof Element.prototype.animate === "function"],
+        ["Fetch API", () => typeof fetch === "function"],
+        ["CSS Custom Properties", () => window.CSS?.supports?.("color", "var(--test)")],
+        ["LocalStorage", () => {
+          try {
+            localStorage.setItem("encryptify_test", "1");
+            localStorage.removeItem("encryptify_test");
+            return true;
+          } catch {
+            return false;
+          }
+        }]
+      ];
+      const missing = checks.filter(([, check]) => !check()).map(([name]) => name);
+      if (!missing.length) return;
+      document.body.innerHTML = `<div style="max-width:520px;margin:100px auto;font-family:monospace;padding:24px;"><h1>Browser not supported</h1><p>Encryptify requires a modern browser. Missing:</p><ul>${missing.map((item) => `<li>${item}</li>`).join("")}</ul></div>`;
+    }
+
+    async function healthCheck() {
+      try {
+        const response = await fetch("/api/health");
+        if (!response.ok) throw new Error("bad health");
+      } catch {
+        showError("SERVER UNREACHABLE", "Cannot connect to the encryption server. Run: uvicorn main:app --reload --port 8000, then refresh this page.", "SERVER_UNREACHABLE");
+      }
+    }
+
+    function registerServiceWorker() {
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("/static/service-worker.js").catch(() => {});
+      }
+    }
+
+    function hideSkeletonWhenReady() {
+      const done = () => els.skeletonScreen.classList.add("hidden");
+      if (document.fonts?.ready) {
+        Promise.race([document.fonts.ready, delay(600)]).then(done);
+      } else {
+        setTimeout(done, 200);
+      }
+    }
+
     els.modeTabs.forEach((tab) => {
       tab.addEventListener("click", () => setMode(tab.dataset.mode));
+      tab.addEventListener("keydown", (event) => {
+        const index = els.modeTabs.indexOf(tab);
+        if (event.key === "ArrowRight" || event.key === "ArrowLeft") {
+          event.preventDefault();
+          const offset = event.key === "ArrowRight" ? 1 : -1;
+          const next = els.modeTabs[(index + offset + els.modeTabs.length) % els.modeTabs.length];
+          next.focus();
+          next.click();
+        }
+      });
     });
-    els.textInput.addEventListener("input", updateCharCount);
+    els.textInput.addEventListener("input", () => {
+      updateCharCount();
+      saveSession();
+    });
     els.generateBtn.addEventListener("click", generateKeys);
     els.encryptBtn.addEventListener("click", () => submitAction("encrypt"));
     els.decryptBtn.addEventListener("click", () => submitAction("decrypt"));
@@ -3131,6 +4426,7 @@
     els.dismissErrorBtn.addEventListener("click", hideError);
     els.copyResultBtn.addEventListener("click", () => copyValue(els.resultOutput, els.copyResultBtn));
     els.copyResultIcon.addEventListener("click", () => copyValue(els.resultOutput, els.copyResultIcon));
+    els.exportBundleBtn.addEventListener("click", exportBundleIfAvailable);
     els.encryptAgainBtn.addEventListener("click", () => {
       if (appState.lastPayload) submitAction("encrypt", { payload: appState.lastPayload, scramble: true });
     });
@@ -3150,12 +4446,49 @@
     });
     els.stagePrevBtn.addEventListener("click", () => processTheater.goTo(processTheater.currentStage - 1, false));
     els.stageNextBtn.addEventListener("click", () => processTheater.goTo(processTheater.currentStage + 1, false));
+    els.themeToggleBtn.addEventListener("click", toggleTheme);
+    els.shortcutBtn.addEventListener("click", () => toggleShortcutPanel(true));
+    els.shortcutBackdrop.addEventListener("click", () => toggleShortcutPanel(false));
+    els.tourBtn.addEventListener("click", startTour);
+    els.startTourBtn.addEventListener("click", startTour);
+    els.skipTourBtn.addEventListener("click", () => {
+      closeWelcome(true);
+      scheduleFirstEncryptNudge();
+    });
+    els.challengeBtn.addEventListener("click", () => openChallengeMode(false));
+    els.footerChallengeBtn.addEventListener("click", () => openChallengeMode(false));
+    els.challengeExitBtn.addEventListener("click", closeChallengeMode);
+    els.assistantSendBtn.addEventListener("click", askAssistant);
+    els.assistantInput.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") askAssistant();
+    });
+    let touchStartX = 0;
+    processTheater.stageEl.addEventListener("touchstart", (event) => {
+      touchStartX = event.changedTouches[0].clientX;
+    }, { passive: true });
+    processTheater.stageEl.addEventListener("touchend", (event) => {
+      const deltaX = event.changedTouches[0].clientX - touchStartX;
+      if (deltaX < -50) processTheater.goTo(processTheater.currentStage + 1, false);
+      if (deltaX > 50) processTheater.goTo(processTheater.currentStage - 1, false);
+    }, { passive: true });
+    els.stageBody.addEventListener?.("click", () => els.stageBody.classList.toggle("expanded"));
+    document.addEventListener("keydown", handleKeyboardShortcuts);
     window.addEventListener("resize", updateModeIndicator);
 
     renderKeyFields();
     renderExplanation(false);
-    updateModeIndicator();
     syncInputContext("encrypt");
+    renderAssistantSuggestions();
+    renderShortcuts();
+    restoreSession();
+    updateThemeButton();
+    checkCompatibility();
+    healthCheck();
+    if (!safeStorageGet(VISITED_KEY)) openWelcome();
+    else scheduleFirstEncryptNudge();
+    registerServiceWorker();
+    hideSkeletonWhenReady();
+    updateModeIndicator();
   </script>
 </body>
 </html>

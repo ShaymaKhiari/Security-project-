@@ -168,3 +168,34 @@ def test_api_rsa_and_hybrid_telemetry_contracts():
     assert hybrid_encrypted["telemetry"]["session_key_encrypted_len"] == len(
         hybrid_encrypted["encrypted_session_key"]
     )
+
+
+def test_health_validate_and_assistant_routes():
+    health = client.get("/api/health")
+    assert health.status_code == 200
+    assert health.json()["version"] == "3.0.0"
+
+    key = client.post("/api/fernet/key", json={}).json()["fernet_key"]
+    valid = client.post(
+        "/api/validate",
+        json={"field": "fernet_key", "value": key},
+    ).json()
+    invalid = client.post(
+        "/api/validate",
+        json={"field": "public_key", "value": "not a pem"},
+    ).json()
+    assert valid["valid"] is True
+    assert invalid["valid"] is False
+
+    answer = client.post(
+        "/api/assistant",
+        json={"question": "Why does HMAC matter?", "mode": "fernet"},
+    ).json()
+    assert answer["success"] is True
+    assert "HMAC" in answer["answer"]
+
+
+def test_pwa_manifest_is_served():
+    response = client.get("/static/manifest.json")
+    assert response.status_code == 200
+    assert response.json()["name"] == "Encryptify"

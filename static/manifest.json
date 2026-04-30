@@ -1,0 +1,17 @@
+{
+  "name": "Encryptify",
+  "short_name": "Encryptify",
+  "description": "Interactive text encryption and decryption with Fernet, RSA, and Hybrid modes.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050A14",
+  "theme_color": "#050A14",
+  "icons": [
+    {
+      "src": "/static/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
