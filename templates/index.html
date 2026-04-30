@@ -1,0 +1,3161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Encryptify</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%23050A14'/%3E%3Cpath d='M20 29h24v22H20z' fill='%2300F5D4'/%3E%3Cpath d='M24 29v-7a8 8 0 0 1 16 0v7h-5v-7a3 3 0 0 0-6 0v7z' fill='%23F0F4FF'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fira+Code:wght@400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-base: #050A14;
+      --bg-surface: #0D1626;
+      --bg-elevated: #132035;
+      --bg-overlay: rgba(13, 22, 38, 0.85);
+      --accent-primary: #00F5D4;
+      --accent-primary-rgb: 0, 245, 212;
+      --accent-secondary: #FFB703;
+      --accent-danger: #FF5C5C;
+      --accent-success: #00C896;
+      --accent-muted: #3A5A7C;
+      --text-primary: #F0F4FF;
+      --text-secondary: #8BA3C1;
+      --text-muted: #4A6080;
+      --text-code: #00F5D4;
+      --border-default: rgba(0, 245, 212, 0.12);
+      --border-active: rgba(0, 245, 212, 0.5);
+      --border-glow: 0 0 0 1px rgba(0, 245, 212, 0.3), 0 0 20px rgba(0, 245, 212, 0.08);
+      --shadow-card: 0 4px 32px rgba(0, 0, 0, 0.5);
+      --shadow-glow: 0 0 40px rgba(0, 245, 212, 0.15);
+      --duration-fast: 150ms;
+      --duration-normal: 300ms;
+      --duration-slow: 500ms;
+      --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+      --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+      --theater-bg: #080F1E;
+      --theater-border: rgba(0, 245, 212, 0.18);
+      --theater-glow: 0 0 60px rgba(0, 245, 212, 0.06);
+      --block-plaintext: #1A3A5C;
+      --block-key: #2D1B4E;
+      --block-iv: #1A3D35;
+      --block-cipher: #3D1A1A;
+      --block-hmac: #2A2A10;
+      --block-session: #1A2D4E;
+      --block-plaintext-bright: #4A9FD4;
+      --block-key-bright: #9B72D4;
+      --block-iv-bright: #00F5D4;
+      --block-cipher-bright: #FF6B6B;
+      --block-hmac-bright: #FFB703;
+      --block-session-bright: #64B5F6;
+      --block-hybrid: #1A3A2A;
+      --block-hybrid-bright: #00C896;
+      --step-duration: 600ms;
+      --flow-duration: 400ms;
+      --reveal-duration: 200ms;
+      --transform-duration: 800ms;
+    }
+
+    body[data-mode="fernet"] {
+      --accent-primary: #00F5D4;
+      --accent-primary-rgb: 0, 245, 212;
+      --accent-secondary: #FFB703;
+      --accent-muted: #3A5A7C;
+      --text-code: #00F5D4;
+      --border-default: rgba(0, 245, 212, 0.12);
+      --border-active: rgba(0, 245, 212, 0.5);
+      --border-glow: 0 0 0 1px rgba(0, 245, 212, 0.3), 0 0 20px rgba(0, 245, 212, 0.08);
+      --shadow-glow: 0 0 40px rgba(0, 245, 212, 0.15);
+      --theater-border: rgba(0, 245, 212, 0.18);
+      --theater-glow: 0 0 60px rgba(0, 245, 212, 0.06);
+      --block-plaintext: #1A3A5C;
+      --block-plaintext-bright: #4A9FD4;
+      --block-key: #2D1B4E;
+      --block-key-bright: #9B72D4;
+      --block-iv: #1A3D35;
+      --block-iv-bright: #00F5D4;
+      --block-cipher: #3D1A1A;
+      --block-cipher-bright: #FF6B6B;
+      --block-hmac: #2A2A10;
+      --block-hmac-bright: #FFB703;
+      --block-session: #1A2D4E;
+      --block-session-bright: #64B5F6;
+      --block-hybrid: #1A3A2A;
+      --block-hybrid-bright: #00C896;
+    }
+
+    body[data-mode="rsa"] {
+      --accent-primary: #8EA7FF;
+      --accent-primary-rgb: 142, 167, 255;
+      --accent-secondary: #C084FC;
+      --accent-muted: #52618F;
+      --text-code: #BFD2FF;
+      --border-default: rgba(142, 167, 255, 0.14);
+      --border-active: rgba(142, 167, 255, 0.58);
+      --border-glow: 0 0 0 1px rgba(142, 167, 255, 0.34), 0 0 22px rgba(192, 132, 252, 0.1);
+      --shadow-glow: 0 0 42px rgba(142, 167, 255, 0.16);
+      --theater-border: rgba(142, 167, 255, 0.22);
+      --theater-glow: 0 0 64px rgba(142, 167, 255, 0.08);
+      --block-plaintext: #182F5C;
+      --block-plaintext-bright: #7DD3FC;
+      --block-key: #321D5D;
+      --block-key-bright: #C084FC;
+      --block-iv: #18384E;
+      --block-iv-bright: #67E8F9;
+      --block-cipher: #42162D;
+      --block-cipher-bright: #FB7185;
+      --block-hmac: #322512;
+      --block-hmac-bright: #FBBF24;
+      --block-session: #18244F;
+      --block-session-bright: #8EA7FF;
+      --block-hybrid: #173A34;
+      --block-hybrid-bright: #34D399;
+    }
+
+    body[data-mode="hybrid"] {
+      --accent-primary: #FF4FD8;
+      --accent-primary-rgb: 255, 79, 216;
+      --accent-secondary: #FACC15;
+      --accent-muted: #745172;
+      --text-code: #FF9AE8;
+      --border-default: rgba(255, 79, 216, 0.14);
+      --border-active: rgba(255, 79, 216, 0.56);
+      --border-glow: 0 0 0 1px rgba(255, 79, 216, 0.32), 0 0 22px rgba(250, 204, 21, 0.08);
+      --shadow-glow: 0 0 42px rgba(255, 79, 216, 0.15);
+      --theater-border: rgba(255, 79, 216, 0.22);
+      --theater-glow: 0 0 64px rgba(255, 79, 216, 0.08);
+      --block-plaintext: #27305F;
+      --block-plaintext-bright: #93C5FD;
+      --block-key: #421B4F;
+      --block-key-bright: #F0ABFC;
+      --block-iv: #2C2F48;
+      --block-iv-bright: #A5B4FC;
+      --block-cipher: #451528;
+      --block-cipher-bright: #FB7185;
+      --block-hmac: #332A10;
+      --block-hmac-bright: #FACC15;
+      --block-session: #172F5F;
+      --block-session-bright: #60A5FA;
+      --block-hybrid: #3E1538;
+      --block-hybrid-bright: #FF4FD8;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-height: 100%;
+      background: var(--bg-base);
+      color: var(--text-primary);
+      font-family: "DM Sans", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      background:
+        linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+        radial-gradient(circle at 50% 8%, rgba(var(--accent-primary-rgb), 0.13), rgba(var(--accent-primary-rgb), 0.035) 28%, transparent 58%),
+        linear-gradient(135deg, #050A14 0%, #08111f 50%, #050A14 100%);
+      background-size: 44px 44px, 44px 44px, 100% 100%, 100% 100%;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      content: "";
+      opacity: 0.04;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140' viewBox='0 0 140 140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.65'/%3E%3C/svg%3E");
+    }
+
+    body::after {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      content: "";
+      background: radial-gradient(circle at 50% 18%, rgba(var(--accent-primary-rgb), 0.12), transparent 48%);
+      animation: ambientPulse 8s var(--ease-in-out) infinite;
+    }
+
+    button,
+    textarea {
+      font: inherit;
+    }
+
+    button {
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .app-shell {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 22px;
+    }
+
+    .app-header {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 14px 0 22px;
+      overflow: hidden;
+      animation: slideDownFade var(--duration-slow) var(--ease-out) 100ms both;
+    }
+
+    .app-header::after {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: -70%;
+      height: 80%;
+      content: "";
+      background: linear-gradient(180deg, transparent, rgba(0, 245, 212, 0.08), transparent);
+      animation: scanLine 8s linear infinite;
+    }
+
+    .brand-lockup {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 2px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-family: "Space Mono", monospace;
+      font-size: clamp(21px, 3vw, 32px);
+      font-weight: 700;
+      letter-spacing: 0;
+    }
+
+    .logo-mark {
+      color: var(--accent-primary);
+      text-shadow: 0 0 22px rgba(0, 245, 212, 0.36);
+      white-space: nowrap;
+    }
+
+    .tagline {
+      color: var(--text-secondary);
+      font-size: 13px;
+    }
+
+    .mode-badge {
+      position: relative;
+      z-index: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      min-width: 158px;
+      border: 1px solid var(--border-active);
+      border-radius: 999px;
+      padding: 9px 14px;
+      background: rgba(0, 245, 212, 0.07);
+      color: var(--accent-primary);
+      font-family: "Space Mono", monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      box-shadow: var(--shadow-glow);
+      text-transform: uppercase;
+    }
+
+    .badge-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--accent-primary);
+      box-shadow: 0 0 14px rgba(0, 245, 212, 0.7);
+      animation: dotPulse 2s var(--ease-in-out) infinite;
+    }
+
+    .mode-bar {
+      display: flex;
+      justify-content: center;
+      margin: 6px 0 22px;
+      animation: slideUpFade var(--duration-slow) var(--ease-out) 250ms both;
+    }
+
+    .mode-selector {
+      position: relative;
+      display: inline-flex;
+      max-width: 100%;
+      padding: 4px;
+      border: 1px solid var(--border-default);
+      border-radius: 12px;
+      background: rgba(13, 22, 38, 0.92);
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.28);
+    }
+
+    .mode-indicator {
+      position: absolute;
+      top: 4px;
+      bottom: 4px;
+      left: 4px;
+      width: 0;
+      border-radius: 8px;
+      background: var(--accent-primary);
+      box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.28), 0 10px 30px rgba(0, 245, 212, 0.18);
+      transition:
+        transform var(--duration-normal) var(--ease-spring),
+        width var(--duration-normal) var(--ease-spring);
+    }
+
+    .mode-tab {
+      position: relative;
+      z-index: 1;
+      min-width: 136px;
+      border: 0;
+      border-radius: 8px;
+      padding: 11px 18px;
+      background: transparent;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-family: "Space Mono", monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      transition: color var(--duration-fast) var(--ease-out);
+    }
+
+    .mode-tab:hover {
+      color: var(--text-primary);
+    }
+
+    .mode-tab.active {
+      color: #050A14;
+    }
+
+    .workspace-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.56fr) minmax(320px, 1fr);
+      gap: 22px;
+      align-items: start;
+    }
+
+    .card {
+      border: 1px solid var(--border-default);
+      border-radius: 8px;
+      background: var(--bg-overlay);
+      box-shadow: var(--shadow-card);
+      backdrop-filter: blur(12px);
+      transition:
+        border-color var(--duration-normal) var(--ease-out),
+        box-shadow var(--duration-normal) var(--ease-out);
+    }
+
+    .card:hover {
+      border-color: var(--border-active);
+    }
+
+    .main-panel {
+      display: grid;
+      gap: 18px;
+      padding: 22px;
+      animation: slideUpFade var(--duration-slow) var(--ease-out) 400ms both;
+    }
+
+    .explain-panel {
+      display: grid;
+      gap: 16px;
+      padding: 22px;
+      animation: slideInFade var(--duration-slow) var(--ease-out) 550ms both;
+    }
+
+    .panel-section {
+      min-width: 0;
+    }
+
+    .section-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .field-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+      color: var(--text-muted);
+      font-family: "Space Mono", monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .label-accent {
+      color: var(--accent-primary);
+    }
+
+    .char-count {
+      color: var(--text-muted);
+      font-family: "Fira Code", monospace;
+      font-size: 11px;
+    }
+
+    .field-wrap {
+      position: relative;
+    }
+
+    .field-textarea {
+      width: 100%;
+      min-height: 144px;
+      border: 1px solid var(--border-default);
+      border-radius: 8px;
+      background: var(--bg-elevated);
+      color: var(--text-primary);
+      caret-color: var(--accent-primary);
+      font-family: "DM Sans", sans-serif;
+      font-size: 14px;
+      line-height: 1.55;
+      padding: 14px 16px;
+      resize: vertical;
+      transition:
+        border-color var(--duration-fast) var(--ease-out),
+        box-shadow var(--duration-fast) var(--ease-out),
+        filter var(--duration-fast) var(--ease-out);
+    }
+
+    .field-textarea::placeholder {
+      color: rgba(139, 163, 193, 0.58);
+    }
+
+    .field-textarea:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 3px rgba(0, 245, 212, 0.12);
+    }
+
+    .field-textarea--code {
+      color: var(--text-code);
+      font-family: "Fira Code", monospace;
+      font-size: 12px;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+    }
+
+    .field-textarea--compact {
+      min-height: 96px;
+      padding-right: 54px;
+    }
+
+    .field-textarea--private.masked {
+      filter: blur(4px);
+      user-select: none;
+    }
+
+    .private-mask {
+      position: absolute;
+      inset: 1px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      background: rgba(5, 10, 20, 0.56);
+      color: var(--accent-secondary);
+      font-family: "Space Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 0.06em;
+      pointer-events: none;
+      text-transform: uppercase;
+    }
+
+    .private-mask.hidden {
+      display: none;
+    }
+
+    .btn-copy,
+    .btn-icon {
+      position: relative;
+      display: inline-grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border: 1px solid var(--border-default);
+      border-radius: 7px;
+      background: rgba(5, 10, 20, 0.4);
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-family: "Space Mono", monospace;
+      transition:
+        border-color var(--duration-fast) var(--ease-out),
+        color var(--duration-fast) var(--ease-out),
+        background var(--duration-fast) var(--ease-out),
+        transform var(--duration-fast) var(--ease-out);
+    }
+
+    .btn-copy {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      z-index: 2;
+    }
+
+    .btn-icon {
+      flex: 0 0 auto;
+    }
+
+    .btn-copy:hover,
+    .btn-icon:hover {
+      border-color: var(--accent-primary);
+      background: rgba(0, 245, 212, 0.08);
+      color: var(--accent-primary);
+      transform: translateY(-1px);
+    }
+
+    .tooltip {
+      position: absolute;
+      right: 0;
+      bottom: calc(100% + 7px);
+      width: max-content;
+      max-width: 120px;
+      border: 1px solid rgba(0, 245, 212, 0.28);
+      border-radius: 6px;
+      padding: 5px 7px;
+      background: #08111f;
+      color: var(--accent-primary);
+      font-family: "DM Sans", sans-serif;
+      font-size: 11px;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(4px);
+      transition:
+        opacity var(--duration-fast) var(--ease-out),
+        transform var(--duration-fast) var(--ease-out);
+    }
+
+    .copied .tooltip {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .key-grid {
+      display: grid;
+      gap: 14px;
+      transition:
+        opacity var(--duration-normal) var(--ease-out),
+        transform var(--duration-normal) var(--ease-out);
+    }
+
+    .key-grid.switching {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+
+    .key-field {
+      display: grid;
+      gap: 8px;
+    }
+
+    .key-label-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .label-actions {
+      display: inline-flex;
+      gap: 7px;
+    }
+
+    .secret-badge,
+    .generated-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid rgba(255, 183, 3, 0.28);
+      border-radius: 999px;
+      padding: 3px 8px;
+      color: var(--accent-secondary);
+      font-family: "Space Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .generated-badge {
+      width: fit-content;
+      border-color: rgba(0, 245, 212, 0.28);
+      color: var(--accent-primary);
+      opacity: 0;
+      transform: translateY(-4px);
+      transition:
+        opacity var(--duration-normal) var(--ease-out),
+        transform var(--duration-normal) var(--ease-out);
+    }
+
+    .generated-badge.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .actions {
+      display: grid;
+      gap: 12px;
+    }
+
+    .action-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .btn {
+      position: relative;
+      min-height: 45px;
+      border-radius: 8px;
+      padding: 12px 20px;
+      cursor: pointer;
+      font-family: "Space Mono", monospace;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      transition:
+        background var(--duration-fast) var(--ease-out),
+        border-color var(--duration-fast) var(--ease-out),
+        color var(--duration-fast) var(--ease-out),
+        box-shadow var(--duration-fast) var(--ease-out),
+        transform var(--duration-fast) var(--ease-out),
+        opacity var(--duration-fast) var(--ease-out);
+    }
+
+    .btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.65;
+    }
+
+    .btn-primary {
+      border: 0;
+      background: var(--accent-primary);
+      color: #050A14;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+      background: #00FFDF;
+      box-shadow: 0 8px 24px rgba(0, 245, 212, 0.25);
+      transform: translateY(-2px);
+    }
+
+    .btn-primary:active:not(:disabled) {
+      transform: scale(0.97);
+    }
+
+    .btn-ghost {
+      border: 1px solid var(--accent-primary);
+      background: transparent;
+      color: var(--accent-primary);
+    }
+
+    .btn-ghost:hover:not(:disabled) {
+      background: rgba(0, 245, 212, 0.08);
+      box-shadow: 0 0 18px rgba(0, 245, 212, 0.12);
+    }
+
+    .btn-link {
+      width: fit-content;
+      min-height: auto;
+      border: 0;
+      padding: 0;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 11px;
+    }
+
+    .btn-link:hover {
+      color: var(--accent-primary);
+    }
+
+    .btn-dots {
+      display: none;
+      justify-content: center;
+      gap: 5px;
+    }
+
+    .btn-dots span {
+      animation: dotFade 800ms var(--ease-in-out) infinite;
+    }
+
+    .btn-dots span:nth-child(2) {
+      animation-delay: 130ms;
+    }
+
+    .btn-dots span:nth-child(3) {
+      animation-delay: 260ms;
+    }
+
+    .btn-loading .btn-text {
+      display: none;
+    }
+
+    .btn-loading .btn-dots {
+      display: flex;
+    }
+
+    .btn-success {
+      background: var(--accent-success);
+    }
+
+    .btn-error {
+      background: var(--accent-danger);
+    }
+
+    .callout {
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .callout-amber {
+      border: 1px solid rgba(255, 183, 3, 0.3);
+      border-left: 3px solid var(--accent-secondary);
+      background: rgba(255, 183, 3, 0.08);
+      color: var(--accent-secondary);
+    }
+
+    .callout-danger {
+      border: 1px solid rgba(255, 92, 92, 0.3);
+      border-left: 3px solid var(--accent-danger);
+      background: rgba(255, 92, 92, 0.08);
+      color: var(--accent-danger);
+    }
+
+    .rsa-notice {
+      display: none;
+      margin-top: 10px;
+    }
+
+    .rsa-notice.show {
+      display: block;
+    }
+
+    .error-card {
+      display: none;
+      align-items: start;
+      justify-content: space-between;
+      gap: 14px;
+      animation: errorIn var(--duration-normal) var(--ease-out) both;
+    }
+
+    .error-card.show {
+      display: flex;
+    }
+
+    .error-title {
+      margin-bottom: 3px;
+      font-family: "Space Mono", monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .error-body {
+      margin: 0;
+      color: #ffc5c5;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .error-hint {
+      margin-top: 8px;
+      color: var(--text-secondary);
+      font-size: 12px;
+    }
+
+    .result-panel {
+      display: grid;
+      grid-template-rows: 0fr;
+      opacity: 0;
+      transition:
+        grid-template-rows 400ms var(--ease-out),
+        opacity 400ms var(--ease-out);
+    }
+
+    .result-panel.show {
+      grid-template-rows: 1fr;
+      opacity: 1;
+    }
+
+    .result-inner {
+      min-height: 0;
+      overflow: hidden;
+    }
+
+    .result-card {
+      display: grid;
+      gap: 13px;
+      padding: 18px;
+      border: 1px solid var(--border-active);
+      border-radius: 8px;
+      background: rgba(8, 17, 31, 0.84);
+      box-shadow: var(--border-glow);
+    }
+
+    .result-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .result-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-primary);
+      font-family: "Space Mono", monospace;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .result-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--accent-primary);
+      box-shadow: 0 0 14px rgba(0, 245, 212, 0.6);
+    }
+
+    .result-output {
+      min-height: 132px;
+      background: rgba(5, 10, 20, 0.7);
+    }
+
+    .result-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .mini-btn {
+      border: 1px solid var(--border-default);
+      border-radius: 7px;
+      padding: 9px 11px;
+      background: transparent;
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-family: "Space Mono", monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      transition:
+        color var(--duration-fast) var(--ease-out),
+        border-color var(--duration-fast) var(--ease-out),
+        background var(--duration-fast) var(--ease-out);
+    }
+
+    .mini-btn:hover {
+      border-color: var(--accent-primary);
+      background: rgba(0, 245, 212, 0.08);
+      color: var(--accent-primary);
+    }
+
+    .session-key-block {
+      display: none;
+      gap: 8px;
+    }
+
+    .session-key-block.show {
+      display: grid;
+    }
+
+    .session-key-value {
+      max-height: 112px;
+      overflow: auto;
+      border: 1px solid rgba(0, 245, 212, 0.18);
+      border-radius: 8px;
+      padding: 11px 12px;
+      background: rgba(5, 10, 20, 0.7);
+      color: var(--text-code);
+      font-family: "Fira Code", monospace;
+      font-size: 11px;
+      line-height: 1.55;
+      overflow-wrap: anywhere;
+    }
+
+    .random-note {
+      display: none;
+    }
+
+    .random-note.show {
+      display: block;
+      animation: amberFlash 700ms var(--ease-out) both;
+    }
+
+    .explain-title {
+      margin: 0;
+      color: var(--text-primary);
+      font-family: "Space Mono", monospace;
+      font-size: 16px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .explain-subtitle {
+      margin: 5px 0 0;
+      color: var(--text-secondary);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .step-list {
+      display: grid;
+      margin-top: 8px;
+    }
+
+    .step-item {
+      display: flex;
+      gap: 14px;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--border-default);
+      transition:
+        opacity var(--duration-normal) var(--ease-out),
+        transform var(--duration-normal) var(--ease-out);
+    }
+
+    .step-number {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex: 0 0 28px;
+      width: 28px;
+      height: 28px;
+      border: 1px solid rgba(0, 245, 212, 0.2);
+      border-radius: 4px;
+      background: rgba(0, 245, 212, 0.08);
+      color: var(--accent-primary);
+      font-family: "Space Mono", monospace;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .step-item.completed .step-number {
+      color: transparent;
+      border-color: var(--accent-success);
+      background: rgba(0, 200, 150, 0.12);
+    }
+
+    .step-item.completed .step-number::before {
+      position: absolute;
+      color: var(--accent-success);
+      content: "✓";
+      animation: checkIn var(--duration-normal) var(--ease-spring) both;
+    }
+
+    .step-text h3 {
+      margin: 0 0 4px;
+      color: var(--text-primary);
+      font-family: "Space Mono", monospace;
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .step-text p {
+      margin: 0;
+      color: var(--text-secondary);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .data-card,
+    .security-card {
+      display: grid;
+      gap: 10px;
+      padding-top: 4px;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      overflow: hidden;
+      border: 1px solid var(--border-default);
+      border-radius: 8px;
+      font-size: 12px;
+    }
+
+    .data-table th,
+    .data-table td {
+      border-bottom: 1px solid var(--border-default);
+      padding: 9px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .data-table th {
+      color: var(--accent-primary);
+      font-family: "Space Mono", monospace;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .data-table td {
+      color: var(--text-secondary);
+      line-height: 1.4;
+    }
+
+    .data-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    .footer-note {
+      margin-top: 22px;
+      padding: 16px 0 6px;
+      color: var(--text-muted);
+      font-size: 12px;
+      line-height: 1.55;
+      text-align: center;
+    }
+
+    .lifecycle {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 8px;
+      color: var(--text-secondary);
+      font-family: "Space Mono", monospace;
+      font-size: 11px;
+    }
+
+    .lifecycle span {
+      border: 1px solid var(--border-default);
+      border-radius: 999px;
+      padding: 5px 8px;
+      background: rgba(13, 22, 38, 0.6);
+    }
+
+    .process-theater {
+      display: grid;
+      gap: 12px;
+      margin-top: 22px;
+      max-height: 0;
+      overflow: hidden;
+      border: 1px solid var(--theater-border);
+      border-radius: 8px;
+      background:
+        linear-gradient(180deg, rgba(0, 245, 212, 0.035), transparent 35%),
+        var(--theater-bg);
+      box-shadow: var(--theater-glow), var(--shadow-card);
+      opacity: 0;
+      padding: 0 18px;
+      transition:
+        max-height 420ms var(--ease-out),
+        opacity 300ms var(--ease-out),
+        padding 300ms var(--ease-out);
+    }
+
+    .process-theater:not([hidden]) {
+      max-height: 720px;
+      opacity: 1;
+      padding: 16px 18px 18px;
+      animation: theaterSlideDown 400ms var(--ease-out) both;
+    }
+
+    .process-theater[hidden] {
+      display: none;
+    }
+
+    .theater-header,
+    .theater-controls,
+    .theater-title,
+    .theater-legend,
+    .stage-track,
+    .stage-navigation {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .theater-header {
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .theater-title {
+      align-items: baseline;
+      flex-wrap: wrap;
+    }
+
+    .theater-mode-badge {
+      border: 1px solid var(--border-active);
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: rgba(0, 245, 212, 0.08);
+      color: var(--accent-primary);
+      font-family: "Space Mono", monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .theater-subtitle {
+      color: var(--text-secondary);
+      font-size: 13px;
+    }
+
+    .theater-controls {
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .speed-btn,
+    .theater-replay-btn,
+    .theater-close-btn,
+    .explore-btn,
+    .stage-prev-btn,
+    .stage-next-btn {
+      border: 1px solid var(--border-default);
+      border-radius: 7px;
+      padding: 8px 10px;
+      background: rgba(5, 10, 20, 0.45);
+      color: var(--text-secondary);
+      cursor: pointer;
+      font-family: "Space Mono", monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      transition:
+        background var(--duration-fast) var(--ease-out),
+        border-color var(--duration-fast) var(--ease-out),
+        color var(--duration-fast) var(--ease-out),
+        transform var(--duration-fast) var(--ease-out);
+    }
+
+    .speed-btn:hover,
+    .theater-replay-btn:hover,
+    .theater-close-btn:hover,
+    .explore-btn:hover,
+    .stage-prev-btn:hover,
+    .stage-next-btn:hover,
+    .speed-btn.active,
+    .explore-btn.active {
+      border-color: var(--accent-primary);
+      background: rgba(0, 245, 212, 0.08);
+      color: var(--accent-primary);
+      transform: translateY(-1px);
+    }
+
+    .theater-legend {
+      flex-wrap: wrap;
+      padding: 8px 0;
+      border-top: 1px solid rgba(0, 245, 212, 0.08);
+      border-bottom: 1px solid rgba(0, 245, 212, 0.08);
+    }
+
+    .legend-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      border: 1px solid currentColor;
+      border-radius: 999px;
+      padding: 5px 8px;
+      background: rgba(5, 10, 20, 0.35);
+      font-family: "Space Mono", monospace;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .legend-pill::before {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      content: "";
+      background: currentColor;
+    }
+
+    .legend-pill.plaintext { color: var(--block-plaintext-bright); }
+    .legend-pill.key { color: var(--block-key-bright); }
+    .legend-pill.iv { color: var(--block-iv-bright); }
+    .legend-pill.cipher { color: var(--block-cipher-bright); }
+    .legend-pill.hmac { color: var(--block-hmac-bright); }
+    .legend-pill.session { color: var(--block-hybrid-bright); }
+
+    .stage-track {
+      min-height: 38px;
+      overflow-x: auto;
+      padding: 2px 0 8px;
+    }
+
+    .stage-dot {
+      flex: 0 0 auto;
+      border: 1px solid var(--border-default);
+      border-radius: 999px;
+      padding: 7px 10px;
+      background: rgba(5, 10, 20, 0.5);
+      color: var(--text-muted);
+      cursor: pointer;
+      font-family: "Space Mono", monospace;
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      transition:
+        background var(--duration-fast) var(--ease-out),
+        border-color var(--duration-fast) var(--ease-out),
+        color var(--duration-fast) var(--ease-out);
+      white-space: nowrap;
+    }
+
+    .stage-dot.active {
+      border-color: var(--accent-primary);
+      background: rgba(0, 245, 212, 0.1);
+      color: var(--accent-primary);
+      box-shadow: 0 0 18px rgba(0, 245, 212, 0.12);
+    }
+
+    .stage-connector {
+      flex: 0 0 16px;
+      height: 1px;
+      background: var(--border-default);
+    }
+
+    .theater-stage {
+      position: relative;
+      min-height: 300px;
+      overflow: hidden;
+      border: 1px solid rgba(0, 245, 212, 0.1);
+      border-radius: 8px;
+      background:
+        linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+        rgba(5, 10, 20, 0.56);
+      background-size: 32px 32px, 32px 32px, 100% 100%;
+    }
+
+    .theater-stage svg {
+      display: block;
+      width: 100%;
+      height: 300px;
+    }
+
+    .stage-description {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(220px, 0.42fr);
+      gap: 12px;
+      align-items: stretch;
+    }
+
+    .stage-title {
+      margin: 0 0 5px;
+      color: var(--text-primary);
+      font-family: "Space Mono", monospace;
+      font-size: 14px;
+      letter-spacing: 0.03em;
+    }
+
+    .stage-body {
+      margin: 0;
+      color: var(--text-secondary);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .stage-data-callout {
+      min-height: 76px;
+      border: 1px solid rgba(0, 245, 212, 0.18);
+      border-left: 3px solid var(--accent-primary);
+      border-radius: 8px;
+      padding: 11px 12px;
+      background: rgba(0, 245, 212, 0.055);
+      color: var(--text-secondary);
+      font-family: "Fira Code", monospace;
+      font-size: 11px;
+      line-height: 1.45;
+      overflow: auto;
+      overflow-wrap: anywhere;
+    }
+
+    .stage-navigation {
+      justify-content: space-between;
+      padding-top: 2px;
+    }
+
+    .stage-counter {
+      color: var(--text-muted);
+      font-family: "Space Mono", monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .theater-tooltip {
+      position: fixed;
+      z-index: 20;
+      max-width: 260px;
+      border: 1px solid var(--border-active);
+      border-radius: 7px;
+      padding: 8px 10px;
+      background: #08111f;
+      color: var(--text-primary);
+      box-shadow: var(--shadow-card);
+      font-family: "Fira Code", monospace;
+      font-size: 11px;
+      line-height: 1.4;
+      pointer-events: none;
+    }
+
+    .explain-panel .step-item.theater-active {
+      border-left: 3px solid var(--accent-primary);
+      padding-left: 10px;
+      background: rgba(0, 245, 212, 0.04);
+    }
+
+    .hex-row,
+    .mini-byte-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      justify-content: center;
+    }
+
+    .hex-byte {
+      min-width: 28px;
+      border: 1px solid rgba(0, 245, 212, 0.16);
+      border-radius: 5px;
+      padding: 5px 4px;
+      background: rgba(0, 245, 212, 0.05);
+      color: var(--accent-primary);
+      font-family: "Fira Code", monospace;
+      font-size: 10px;
+      text-align: center;
+    }
+
+    .stage-glyph {
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+
+    .spin-dial {
+      animation: spinDial 900ms linear infinite;
+      transform-box: fill-box;
+      transform-origin: center;
+    }
+
+    .pulse-border {
+      animation: pulseBorder 700ms var(--ease-out) both;
+    }
+
+    .error-shake {
+      animation: shake 400ms var(--ease-out);
+    }
+
+    .field-error {
+      border-color: var(--accent-danger) !important;
+      box-shadow: 0 0 0 3px rgba(255, 92, 92, 0.12) !important;
+    }
+
+    @keyframes ambientPulse {
+      0%, 100% { opacity: 0.55; }
+      50% { opacity: 0.9; }
+    }
+
+    @keyframes slideUpFade {
+      from { opacity: 0; transform: translateY(24px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideDownFade {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes slideInFade {
+      from { opacity: 0; transform: translateX(40px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    @keyframes scanLine {
+      0% { transform: translateY(-120%); }
+      55%, 100% { transform: translateY(260%); }
+    }
+
+    @keyframes dotPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.42; }
+    }
+
+    @keyframes dotFade {
+      0%, 100% { opacity: 0.3; transform: translateY(0); }
+      50% { opacity: 1; transform: translateY(-2px); }
+    }
+
+    @keyframes pulseBorder {
+      0% { box-shadow: 0 0 0 0 rgba(0, 245, 212, 0.3); }
+      100% { box-shadow: 0 0 0 9px rgba(0, 245, 212, 0); }
+    }
+
+    @keyframes checkIn {
+      from { opacity: 0; transform: scale(0.45); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes errorIn {
+      from { opacity: 0; transform: translateY(-8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      20% { transform: translateX(-6px); }
+      40% { transform: translateX(6px); }
+      60% { transform: translateX(-4px); }
+      80% { transform: translateX(4px); }
+    }
+
+    @keyframes amberFlash {
+      0% { box-shadow: 0 0 0 0 rgba(255, 183, 3, 0.24); }
+      100% { box-shadow: 0 0 0 10px rgba(255, 183, 3, 0); }
+    }
+
+    @keyframes theaterSlideDown {
+      from { opacity: 0; transform: translateY(-14px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes spinDial {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 980px) {
+      .workspace-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .explain-panel {
+        animation-name: slideUpFade;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .app-shell {
+        width: min(100% - 22px, 1180px);
+        padding-top: 16px;
+      }
+
+      .app-header {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .mode-selector {
+        display: grid;
+        grid-template-columns: 1fr;
+        width: 100%;
+      }
+
+      .mode-tab {
+        width: 100%;
+      }
+
+      .mode-indicator {
+        display: none;
+      }
+
+      .mode-tab.active {
+        background: var(--accent-primary);
+      }
+
+      .main-panel,
+      .explain-panel {
+        padding: 16px;
+      }
+
+      .action-row {
+        grid-template-columns: 1fr;
+      }
+
+      .btn {
+        width: 100%;
+      }
+
+      .field-textarea {
+        min-height: 118px;
+        font-size: 13px;
+      }
+
+      .field-textarea--compact {
+        min-height: 92px;
+      }
+
+      .process-theater:not([hidden]) {
+        max-height: 960px;
+        padding: 14px;
+      }
+
+      .theater-header,
+      .stage-description,
+      .stage-navigation {
+        align-items: stretch;
+        flex-direction: column;
+      }
+
+      .stage-description {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      .theater-stage,
+      .theater-stage svg {
+        min-height: 260px;
+        height: 260px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 1ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 1ms !important;
+      }
+
+      .theater-stage * {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body data-mode="fernet">
+  <main class="app-shell">
+    <header class="app-header">
+      <div class="brand-lockup">
+        <div class="brand"><span class="logo-mark">⟨▣⟩</span> ENCRYPTIFY</div>
+        <div class="tagline">Encrypt. Understand. Verify.</div>
+      </div>
+      <div class="mode-badge" aria-live="polite"><span class="badge-dot"></span><span id="modeBadgeText">FERNET MODE</span></div>
+    </header>
+
+    <section class="mode-bar" aria-label="Encryption mode">
+      <div class="mode-selector" id="modeSelector">
+        <div class="mode-indicator" id="modeIndicator"></div>
+        <button class="mode-tab active" type="button" data-mode="fernet">⊕ FERNET</button>
+        <button class="mode-tab" type="button" data-mode="rsa">⟨⟩ RSA</button>
+        <button class="mode-tab" type="button" data-mode="hybrid">⊛ HYBRID</button>
+      </div>
+    </section>
+
+    <section class="workspace-grid">
+      <section class="card main-panel" aria-label="Encryptify controls">
+        <div class="panel-section">
+          <div class="section-head">
+            <label class="field-label" for="textInput"><span class="label-accent">01</span><span id="inputLabel">PLAINTEXT</span></label>
+            <span class="char-count"><span id="charCount">0</span> chars</span>
+          </div>
+          <textarea id="textInput" class="field-textarea" rows="6" placeholder="Enter your message here..."></textarea>
+          <div class="callout callout-amber rsa-notice" id="rsaNotice">RSA-2048 with OAEP-SHA256 can only encrypt short messages, about 190 bytes. For longer text, use Hybrid mode.</div>
+        </div>
+
+        <div class="panel-section">
+          <div class="section-head">
+            <p class="field-label"><span class="label-accent">02</span> KEY MATERIAL</p>
+            <span class="generated-badge" id="generatedBadge">✓ Generated</span>
+          </div>
+          <div class="key-grid" id="keyFields"></div>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-ghost" type="button" id="generateBtn">
+            <span class="btn-text">⚙ GENERATE KEYS</span>
+            <span class="btn-dots"><span>●</span><span>●</span><span>●</span></span>
+          </button>
+          <div class="action-row">
+            <button class="btn btn-primary" type="button" id="encryptBtn">
+              <span class="btn-text">▶ ENCRYPT</span>
+              <span class="btn-dots"><span>●</span><span>●</span><span>●</span></span>
+            </button>
+            <button class="btn btn-primary" type="button" id="decryptBtn">
+              <span class="btn-text">◀ DECRYPT</span>
+              <span class="btn-dots"><span>●</span><span>●</span><span>●</span></span>
+            </button>
+          </div>
+          <button class="btn btn-link" type="button" id="clearBtn">✕ CLEAR ALL</button>
+        </div>
+
+        <div class="callout callout-danger error-card" id="errorCard" role="alert">
+          <div>
+            <div class="error-title" id="errorTitle">Request failed</div>
+            <p class="error-body" id="errorBody"></p>
+            <div class="error-hint" id="errorHint"></div>
+          </div>
+          <button class="mini-btn" type="button" id="dismissErrorBtn">DISMISS</button>
+        </div>
+
+      </section>
+
+      <aside class="card explain-panel" aria-label="How it works">
+        <section>
+          <h1 class="explain-title" id="explainTitle"></h1>
+          <p class="explain-subtitle" id="explainSubtitle"></p>
+          <div class="step-list" id="stepList"></div>
+        </section>
+
+        <section class="data-card">
+          <p class="field-label"><span class="label-accent">DATA</span> EXCHANGED</p>
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Operation</th>
+                <th>Data</th>
+              </tr>
+            </thead>
+            <tbody id="dataRows"></tbody>
+          </table>
+        </section>
+
+        <section class="security-card">
+          <p class="field-label"><span class="label-accent">NOTE</span> SECURITY</p>
+          <div class="callout callout-amber" id="securityNote"></div>
+        </section>
+      </aside>
+    </section>
+
+    <section class="process-theater" id="processTheater" aria-label="Cryptographic process visualization" hidden>
+      <div class="theater-header">
+        <div class="theater-title">
+          <span class="theater-mode-badge" id="theaterModeBadge">FERNET ENCRYPTION</span>
+          <span class="theater-subtitle">Watch your data transform</span>
+        </div>
+        <div class="theater-controls">
+          <button class="speed-btn active" type="button" data-speed="0.5">0.5×</button>
+          <button class="speed-btn" type="button" data-speed="1">1×</button>
+          <button class="speed-btn" type="button" data-speed="2">2×</button>
+          <button class="explore-btn" type="button" id="exploreBtn">⊡ Explore Mode</button>
+          <button class="theater-replay-btn" type="button" id="theaterReplayBtn">↺ Replay</button>
+          <button class="theater-close-btn" type="button" id="theaterCloseBtn">✕</button>
+        </div>
+      </div>
+
+      <div class="theater-legend" aria-label="Theater data legend">
+        <span class="legend-pill plaintext">Plaintext</span>
+        <span class="legend-pill key">Secret Key</span>
+        <span class="legend-pill iv">IV / Nonce</span>
+        <span class="legend-pill cipher">Ciphertext</span>
+        <span class="legend-pill hmac">HMAC</span>
+        <span class="legend-pill session">Session Key</span>
+      </div>
+
+      <div class="stage-track" id="stageTrack" aria-label="Theater stages"></div>
+      <div class="theater-stage" id="theaterStage" aria-live="polite"></div>
+
+      <div class="stage-description">
+        <div>
+          <h3 class="stage-title" id="stageTitle">Step 1</h3>
+          <p class="stage-body" id="stageBody">Run an encryption or decryption operation to open the process theater.</p>
+        </div>
+        <div class="stage-data-callout" id="stageDataCallout"></div>
+      </div>
+
+      <div class="stage-navigation">
+        <button class="stage-prev-btn" type="button" id="stagePrevBtn">← Previous</button>
+        <span class="stage-counter" id="stageCounter">Step 0 of 0</span>
+        <button class="stage-next-btn" type="button" id="stageNextBtn">Next →</button>
+      </div>
+    </section>
+
+    <div class="result-panel" id="resultPanel">
+      <div class="result-inner">
+        <div class="result-card">
+          <div class="result-head">
+            <div class="result-label"><span class="result-dot"></span><span id="resultLabel">RESULT</span></div>
+            <button class="btn-icon" type="button" id="copyResultIcon" aria-label="Copy result">⧉<span class="tooltip">Copied!</span></button>
+          </div>
+          <textarea id="resultOutput" class="field-textarea field-textarea--code result-output" readonly></textarea>
+          <div class="session-key-block" id="sessionKeyBlock">
+            <p class="field-label"><span class="label-accent">↪</span> ENCRYPTED SESSION KEY</p>
+            <div class="session-key-value" id="sessionKeyValue"></div>
+          </div>
+          <div class="result-actions">
+            <button class="mini-btn" type="button" id="copyResultBtn">⧉ COPY RESULT</button>
+            <button class="mini-btn" type="button" id="encryptAgainBtn">↺ ENCRYPT AGAIN</button>
+          </div>
+          <div class="callout callout-amber random-note" id="randomNote">⟳ Each encryption run produces a different ciphertext. This proves the operation used fresh randomness: an IV, an OAEP seed, or a new session key.</div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="footer-note">
+      IT360 Information Assurance and Security · Academic Year 2025/2026 · Runs locally with no persistent storage
+      <div class="lifecycle" aria-label="Key lifecycle">
+        <span>Generate</span>
+        <span>Encrypt</span>
+        <span>Transmit Artifacts</span>
+        <span>Decrypt</span>
+        <span>Clear</span>
+      </div>
+    </footer>
+  </main>
+
+  <script>
+    const appState = {
+      mode: "fernet",
+      lastAction: "encrypt",
+      lastPayload: null,
+      resultText: "",
+      encryptedSessionKey: "",
+      completed: false,
+      privateVisible: false,
+    };
+
+    const modeMeta = {
+      fernet: {
+        label: "FERNET MODE",
+        title: "HOW FERNET WORKS",
+        subtitle: "One shared secret key encrypts and decrypts. Fernet packages AES-CBC encryption, HMAC integrity, timestamps, and URL-safe encoding.",
+        steps: [
+          ["KEY STRUCTURE", "A 32-byte Fernet key is split into a 16-byte AES-128-CBC encryption key and a 16-byte HMAC-SHA256 signing key."],
+          ["ENCRYPTION STEPS", "A random 16-byte IV is generated, plaintext is padded, encrypted with AES-CBC, signed with HMAC-SHA256, then Base64url encoded."],
+          ["DECRYPTION STEPS", "The HMAC signature is verified first. Then the IV is extracted, ciphertext is decrypted, and PKCS7 padding is removed."],
+          ["RANDOMIZATION", "The random IV guarantees a different token every time, even when the plaintext and key stay the same."],
+          ["SECURITY", "Tampering is detected before plaintext is released, and every Fernet token carries an embedded timestamp."]
+        ],
+        data: [
+          ["Key generation", "(none) → Fernet key"],
+          ["Encrypt", "Plaintext + Fernet key → Fernet token"],
+          ["Decrypt", "Fernet token + Fernet key → Plaintext"]
+        ],
+        note: "Use the same Fernet key for decryption. Losing it means the token cannot be recovered."
+      },
+      rsa: {
+        label: "RSA MODE",
+        title: "HOW RSA WORKS",
+        subtitle: "A public key encrypts and a private key decrypts. OAEP padding adds the randomness that raw RSA lacks.",
+        steps: [
+          ["KEY PAIR", "Anyone can use the public key to encrypt. Only the private key owner can decrypt."],
+          ["KEY GENERATION", "RSA creates two large primes, computes n = p × q, uses e = 65537, then derives private exponent d."],
+          ["ENCRYPTION", "OAEP padding adds a random seed before computing C = M^e mod n. The result is encoded as Base64."],
+          ["DECRYPTION", "The private exponent computes M = C^d mod n, and OAEP padding is stripped to recover plaintext."],
+          ["WHY OAEP", "Raw RSA is deterministic and insecure. OAEP makes repeated encryptions of the same text produce different ciphertext."],
+          ["LIMITATION", "RSA-2048 with OAEP-SHA256 can encrypt only about 190 bytes. Hybrid mode is the correct choice for longer messages."]
+        ],
+        data: [
+          ["Key generation", "(none) → Public PEM + Private PEM"],
+          ["Encrypt", "Plaintext + Public Key → Base64 ciphertext"],
+          ["Decrypt", "Base64 ciphertext + Private Key → Plaintext"]
+        ],
+        note: "The private key is intentionally blurred by default. In a real system, never paste or display private keys casually."
+      },
+      hybrid: {
+        label: "HYBRID MODE",
+        title: "HOW HYBRID ENCRYPTION WORKS",
+        subtitle: "Fernet protects the message; RSA protects the fresh session key. This is the pattern behind many real secure systems.",
+        steps: [
+          ["WHY HYBRID", "RSA is secure but slow and size-limited. Fernet is fast but needs key transport. Hybrid mode combines both strengths."],
+          ["ENCRYPTION STEPS", "A fresh Fernet session key encrypts the message, then the receiver's RSA public key encrypts that session key."],
+          ["DECRYPTION STEPS", "The RSA private key unwraps the session key, and that Fernet key decrypts the message."],
+          ["TWO ARTIFACTS", "Hybrid encryption outputs an encrypted message plus an encrypted session key. Both are needed for decryption."],
+          ["SECURITY PROPERTIES", "Fernet supplies confidentiality, integrity, and IV randomness. RSA supplies secure key transport without a shared secret."]
+        ],
+        data: [
+          ["Encrypt", "Plaintext + Public Key → Encrypted Message + Encrypted Session Key"],
+          ["Decrypt", "Encrypted Message + Encrypted Session Key + Private Key → Plaintext"]
+        ],
+        note: "Hybrid mode can handle long messages because RSA encrypts only the short Fernet session key."
+      }
+    };
+
+    const errorHints = {
+      INVALID_KEY: "Make sure you're using the same key that was used to encrypt this text.",
+      CORRUPTED_CIPHERTEXT: "The token may have been truncated or modified. Copy the full output.",
+      PLAINTEXT_TOO_LONG: "Switch to Hybrid mode to encrypt messages of any length.",
+      MISSING_FIELD: "Fill the highlighted field and try again.",
+      UNSUPPORTED_MODE: "Choose Fernet, RSA, or Hybrid from the mode selector."
+    };
+
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    function escapeHtml(value) {
+      return String(value ?? "").replace(/[&<>"']/g, (char) => ({
+        "&": "&amp;",
+        "<": "&lt;",
+        ">": "&gt;",
+        "\"": "&quot;",
+        "'": "&#39;"
+      }[char]));
+    }
+
+    function preview(value, length = 52) {
+      const text = String(value ?? "");
+      return text.length <= length ? text : `${text.slice(0, length)}...`;
+    }
+
+    function shortHex(value, length = 32) {
+      const text = String(value ?? "");
+      return text.length <= length ? text : `${text.slice(0, length)}...`;
+    }
+
+    function delay(ms, speed = 1) {
+      return new Promise((resolve) => setTimeout(resolve, reducedMotion ? 1 : ms / speed));
+    }
+
+    function typeColor(type) {
+      const colors = {
+        plaintext: "var(--block-plaintext-bright)",
+        key: "var(--block-key-bright)",
+        iv: "var(--block-iv-bright)",
+        cipher: "var(--block-cipher-bright)",
+        hmac: "var(--block-hmac-bright)",
+        session: "var(--block-hybrid-bright)"
+      };
+      return colors[type] || "var(--accent-primary)";
+    }
+
+    function dataBlock({ id, label, value, type, x, y, width = 126, height = 46 }) {
+      const fill = type === "session" ? "var(--block-hybrid)" : `var(--block-${type})`;
+      const stroke = typeColor(type);
+      const text = preview(value, 15);
+      return `
+        <g id="${id}" class="stage-glyph data-node" transform="translate(${x}, ${y})" opacity="0"
+           data-tooltip="${escapeHtml(label)}: ${escapeHtml(value)}">
+          <rect width="${width}" height="${height}" rx="6"
+                fill="${fill}" stroke="${stroke}" stroke-width="0.7"/>
+          <text x="${width / 2}" y="15" text-anchor="middle"
+                font-family="Space Mono" font-size="9" letter-spacing="0.08em"
+                fill="${stroke}" opacity="0.76">${escapeHtml(label)}</text>
+          <text x="${width / 2}" y="33" text-anchor="middle"
+                font-family="Fira Code" font-size="11"
+                fill="${stroke}">${escapeHtml(text)}</text>
+        </g>
+      `;
+    }
+
+    function svgShell(content, viewBox = "0 0 900 300") {
+      return `
+        <svg viewBox="${viewBox}" role="img" aria-label="Process theater stage">
+          <defs>
+            <marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+              <path d="M 0 0 L 10 5 L 0 10 z" fill="var(--accent-primary)"></path>
+            </marker>
+            <filter id="softGlow">
+              <feGaussianBlur stdDeviation="2" result="blur"></feGaussianBlur>
+              <feMerge><feMergeNode in="blur"></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge>
+            </filter>
+          </defs>
+          ${content}
+        </svg>
+      `;
+    }
+
+    function byteCells(bytes, x, y, type = "iv", prefix = "byte", limit = 32) {
+      return bytes.slice(0, limit).map((byte, index) => `
+        <g id="${prefix}-${index}" class="stage-glyph byte-cell" transform="translate(${x + (index % 16) * 42}, ${y + Math.floor(index / 16) * 42})" opacity="0"
+           data-tooltip="Byte ${index + 1}: ${escapeHtml(byte)}">
+          <rect width="34" height="34" rx="5" fill="${type === "session" ? "var(--block-hybrid)" : `var(--block-${type})`}" stroke="${typeColor(type)}" stroke-width="0.7"></rect>
+          <text x="17" y="21" text-anchor="middle" font-family="Fira Code" font-size="11" fill="${typeColor(type)}">${escapeHtml(byte)}</text>
+        </g>
+      `).join("");
+    }
+
+    function textCells(text, x, y, limit = 26) {
+      const chars = [...String(text || "")].slice(0, limit);
+      return chars.map((char, index) => `
+        <g class="stage-glyph" transform="translate(${x + (index % 18) * 38}, ${y + Math.floor(index / 18) * 42})" opacity="0"
+           data-tooltip="Plaintext character: ${escapeHtml(char)}">
+          <rect width="32" height="32" rx="5" fill="var(--block-plaintext)" stroke="var(--block-plaintext-bright)" stroke-width="0.7"></rect>
+          <text x="16" y="21" text-anchor="middle" font-family="Fira Code" font-size="12" fill="var(--block-plaintext-bright)">${escapeHtml(char === " " ? "·" : char)}</text>
+        </g>
+      `).join("");
+    }
+
+    function paddedCells(telemetry, x, y) {
+      const hex = telemetry.padded_hex || "";
+      const bytes = hex.match(/.{1,2}/g) || [];
+      const plaintextBytes = telemetry.plaintext_bytes || Math.max(0, bytes.length - (telemetry.padding_count || 0));
+      return bytes.slice(0, 48).map((byte, index) => {
+        const isPadding = index >= plaintextBytes;
+        const type = isPadding ? "hmac" : "plaintext";
+        const value = isPadding ? `0x${byte.toUpperCase()}` : String.fromCharCode(parseInt(byte, 16)) || byte;
+        return `
+          <g class="stage-glyph" transform="translate(${x + (index % 16) * 42}, ${y + Math.floor(index / 16) * 42})" opacity="0"
+             data-tooltip="${isPadding ? "Padding byte" : "Plaintext byte"}: ${escapeHtml(byte.toUpperCase())}">
+            <rect width="34" height="34" rx="5" fill="var(--block-${type})" stroke="${typeColor(type)}" stroke-width="0.7"></rect>
+            <text x="17" y="21" text-anchor="middle" font-family="Fira Code" font-size="${isPadding ? 9 : 11}" fill="${typeColor(type)}">${escapeHtml(isPadding ? value : (value === " " ? "·" : value))}</text>
+          </g>
+        `;
+      }).join("");
+    }
+
+    async function animateGlyphs(stageEl, speed, selector = ".stage-glyph") {
+      const glyphs = [...stageEl.querySelectorAll(selector)];
+      for (let i = 0; i < glyphs.length; i++) {
+        glyphs[i].animate(
+          [
+            { opacity: 0, filter: "brightness(0.7)" },
+            { opacity: 1, filter: "brightness(1)" }
+          ],
+          { duration: reducedMotion ? 1 : 220 / speed, easing: "ease-out", fill: "forwards" }
+        );
+        await delay(34, speed);
+      }
+    }
+
+    async function animateSlotMachine(stageEl, finalValues, speed, selector = ".byte-cell text") {
+      const slots = [...stageEl.querySelectorAll(selector)];
+      const values = finalValues.length ? finalValues : slots.map((_, index) => `${index}`.padStart(2, "0"));
+      for (let i = 0; i < slots.length; i++) {
+        const slot = slots[i];
+        const finalValue = values[i] || "00";
+        let count = 0;
+        const iterations = reducedMotion ? 1 : 7;
+        const timer = setInterval(() => {
+          slot.textContent = count >= iterations
+            ? finalValue
+            : Math.floor(Math.random() * 256).toString(16).padStart(2, "0").toUpperCase();
+          count += 1;
+          if (count > iterations) clearInterval(timer);
+        }, Math.max(16, 60 / speed));
+        await delay(60, speed);
+      }
+      await delay(520, speed);
+    }
+
+    async function successFlash(el, speed) {
+      await el.animate(
+        [
+          { filter: "brightness(1)" },
+          { filter: "brightness(1.8) drop-shadow(0 0 8px var(--accent-success))" },
+          { filter: "brightness(1)" }
+        ],
+        { duration: reducedMotion ? 1 : 600 / speed, easing: "ease-out", fill: "forwards" }
+      ).finished;
+    }
+
+    async function failureShake(el, speed) {
+      await el.animate(
+        [
+          { transform: "translateX(0)", filter: "none" },
+          { transform: "translateX(-8px)", filter: "drop-shadow(0 0 8px var(--accent-danger))" },
+          { transform: "translateX(8px)" },
+          { transform: "translateX(-6px)" },
+          { transform: "translateX(6px)" },
+          { transform: "translateX(0)", filter: "none" }
+        ],
+        { duration: reducedMotion ? 1 : 500 / speed, easing: "ease-out", fill: "forwards" }
+      ).finished;
+    }
+
+    function genericAnimate(stageEl, telemetry, speed) {
+      return animateGlyphs(stageEl, speed);
+    }
+
+    function fernetEncryptStages() {
+      return [
+        {
+          id: "padding",
+          label: "PKCS7 padding",
+          title: "Step 1 — PKCS7 Padding",
+          body: "AES works in 16-byte blocks. Your actual characters move into a block grid, and the final cells are filled with PKCS7 padding bytes.",
+          dataCallout: (t) => `"${escapeHtml(preview(t.plaintext_preview || t.plaintext, 36))}" → ${t.plaintext_bytes} bytes<br>Padding added: ${t.padding_count} × 0x${Number(t.padding_byte || 0).toString(16).padStart(2, "0").toUpperCase()}<br>Padded total: ${(t.block_count || 0) * 16} bytes`,
+          render: (el, t) => {
+            el.innerHTML = svgShell(`
+              <text x="34" y="28" fill="var(--text-secondary)" font-family="Space Mono" font-size="12">PLAINTEXT CHARACTERS</text>
+              ${textCells(t.plaintext || t.plaintext_preview || "", 34, 48)}
+              <text x="34" y="142" fill="var(--text-secondary)" font-family="Space Mono" font-size="12">AES 16-BYTE BLOCKS</text>
+              ${paddedCells(t, 34, 164)}
+              <text x="34" y="278" fill="var(--accent-secondary)" font-family="Fira Code" font-size="12">${escapeHtml(t.plaintext_bytes)} bytes + ${escapeHtml(t.padding_count)} padding = ${escapeHtml((t.block_count || 0) * 16)} bytes</text>
+            `);
+          },
+          animate: genericAnimate
+        },
+        {
+          id: "iv",
+          label: "IV generation",
+          title: "Step 2 — Random IV Generation",
+          body: "The server generated a fresh 16-byte IV for this run. Those exact bytes land in the slots below, which is why repeat encryptions differ.",
+          dataCallout: (t) => `IV bytes from telemetry:<br>${escapeHtml((t.iv_bytes || []).join(" "))}`,
+          render: (el, t) => {
+            const placeholders = Array(16).fill("??");
+            el.innerHTML = svgShell(`
+              <text x="300" y="48" text-anchor="middle" fill="var(--block-iv-bright)" font-family="Space Mono" font-size="16">RANDOM IV — 16 BYTES</text>
+              ${byteCells(placeholders, 116, 88, "iv", "iv-slot", 16)}
+              <path class="stage-glyph" d="M450 176 C455 220 520 224 560 248" fill="none" stroke="var(--block-iv-bright)" stroke-width="2" marker-end="url(#arrow)" opacity="0"></path>
+              ${dataBlock({ id: "cbc-input", label: "CBC INPUT", value: "IV feeds block 1", type: "iv", x: 575, y: 224, width: 170 })}
+              <text x="116" y="244" fill="var(--text-secondary)" font-family="DM Sans" font-size="14">This random IV is stored inside the Fernet token for decryption.</text>
+            `);
+          },
+          animate: async (el, t, speed) => {
+            await animateGlyphs(el, speed, ".stage-glyph");
+            await animateSlotMachine(el, t.iv_bytes || [], speed, ".byte-cell text");
+            await successFlash(el.querySelector("svg"), speed);
+          }
+        },
+        {
+          id: "aes",
+          label: "AES-CBC",
+          title: "Step 3 — AES-CBC Block Encryption",
+          body: "The padded plaintext is XORed with the IV or previous ciphertext block, then transformed by AES-128 using the encryption half of the Fernet key.",
+          dataCallout: (t) => `Blocks encrypted: ${escapeHtml(t.block_count)}<br>First ciphertext block:<br>${escapeHtml(shortHex((t.ciphertext_blocks || [])[0] || t.ciphertext_hex, 64))}`,
+          render: (el, t) => {
+            el.innerHTML = svgShell(`
+              ${dataBlock({ id: "iv-block", label: "IV", value: shortHex(t.iv_hex, 20), type: "iv", x: 36, y: 64 })}
+              ${dataBlock({ id: "pt-block", label: "PADDED PT", value: `${t.block_count} block(s)`, type: "plaintext", x: 36, y: 166 })}
+              <text class="stage-glyph" x="230" y="124" fill="var(--accent-primary)" font-family="Space Mono" font-size="28" opacity="0">XOR</text>
+              <rect class="stage-glyph" x="360" y="74" width="168" height="118" rx="10" fill="rgba(5,10,20,0.9)" stroke="var(--accent-primary)" opacity="0"></rect>
+              <text class="stage-glyph" x="444" y="112" text-anchor="middle" fill="var(--accent-primary)" font-family="Space Mono" font-size="18" opacity="0">AES-128</text>
+              <text class="stage-glyph spin-dial" x="444" y="148" text-anchor="middle" fill="var(--accent-primary)" font-family="Space Mono" font-size="28" opacity="0">⚙</text>
+              <text class="stage-glyph" x="444" y="174" text-anchor="middle" fill="var(--text-secondary)" font-family="Fira Code" font-size="11" opacity="0">SubBytes → ShiftRows → AddKey</text>
+              ${dataBlock({ id: "key-block", label: "FERNET KEY", value: "AES half", type: "key", x: 382, y: 18 })}
+              ${dataBlock({ id: "ct-block", label: "CIPHERTEXT", value: `${(t.ciphertext_hex || "").length / 2} bytes`, type: "cipher", x: 646, y: 108, width: 150 })}
+              <path class="stage-glyph" d="M162 86 L218 112" stroke="var(--block-iv-bright)" stroke-width="2" marker-end="url(#arrow)" opacity="0"></path>
+              <path class="stage-glyph" d="M162 188 L218 142" stroke="var(--block-plaintext-bright)" stroke-width="2" marker-end="url(#arrow)" opacity="0"></path>
+              <path class="stage-glyph" d="M282 132 L356 132" stroke="var(--accent-primary)" stroke-width="2" marker-end="url(#arrow)" opacity="0"></path>
+              <path class="stage-glyph" d="M528 132 L642 132" stroke="var(--block-cipher-bright)" stroke-width="2" marker-end="url(#arrow)" opacity="0"></path>
+            `);
+          },
+          animate: genericAnimate
+        },
+        {
+          id: "hmac",
+          label: "HMAC signing",
+          title: "Step 4 — HMAC-SHA256 Signing",
+          body: "Fernet signs the version, timestamp, IV, and ciphertext. If any byte changes, the recomputed HMAC will not match during decryption.",
+          dataCallout: (t) => `HMAC prefix: ${escapeHtml(t.hmac_prefix || shortHex(t.hmac_hex, 16))}<br>HMAC size: 32 bytes`,
+          render: (el, t) => {
+            el.innerHTML = svgShell(`
+              ${dataBlock({ id: "ver", label: "VER", value: t.token_version || "0x80", type: "session", x: 36, y: 62, width: 86 })}
+              ${dataBlock({ id: "ts", label: "TIME", value: shortHex(t.timestamp, 14), type: "session", x: 36, y: 128, width: 118 })}
+              ${dataBlock({ id: "ct", label: "CIPHERTEXT", value: `${(t.ciphertext_hex || "").length / 2} bytes`, type: "cipher", x: 36, y: 194, width: 148 })}
+              <path class="stage-glyph" d="M300 40 L596 40 L490 190 L406 190 Z" fill="var(--block-hmac)" opacity="0" stroke="var(--block-hmac-bright)" stroke-width="1"></path>
+              <text class="stage-glyph" x="448" y="112" text-anchor="middle" fill="var(--block-hmac-bright)" font-family="Space Mono" font-size="18" opacity="0">HMAC-SHA256</text>
+              ${dataBlock({ id: "hmac-out", label: "TAG", value: shortHex(t.hmac_hex, 24), type: "hmac", x: 650, y: 118, width: 170 })}
+              <path class="stage-glyph" d="M190 86 C248 86 255 64 300 74" stroke="var(--accent-primary)" stroke-width="2" fill="none" marker-end="url(#arrow)" opacity="0"></path>
+              <path class="stage-glyph" d="M190 152 C258 152 262 130 316 130" stroke="var(--accent-primary)" stroke-width="2" fill="none" marker-end="url(#arrow)" opacity="0"></path>
+              <path class="stage-glyph" d="M202 218 C280 218 288 168 354 170" stroke="var(--accent-primary)" stroke-width="2" fill="none" marker-end="url(#arrow)" opacity="0"></path>
+              <path class="stage-glyph" d="M514 154 L646 142" stroke="var(--block-hmac-bright)" stroke-width="2" marker-end="url(#arrow)" opacity="0"></path>
+            `);
+          },
+          animate: genericAnimate
+        },
+        {
+          id: "assembly",
+          label: "Token assembly",
+          title: "Step 5 — Fernet Token Assembly",
+          body: "The token is assembled from real components: version, timestamp, IV, ciphertext, and HMAC. These bytes are what later get Base64url encoded.",
+          dataCallout: (t) => {
+            const c = t.token_components || {};
+            return `VER ${escapeHtml(c.version || "")} | TS ${escapeHtml(shortHex(c.timestamp, 16))}<br>IV ${escapeHtml(shortHex(c.iv, 32))}<br>HMAC ${escapeHtml(shortHex(c.hmac, 32))}`;
+          },
+          render: (el, t) => {
+            el.innerHTML = svgShell(`
+              <rect class="stage-glyph" x="54" y="86" width="780" height="76" rx="10" fill="rgba(5,10,20,0.58)" stroke="var(--border-active)" opacity="0"></rect>
+              ${dataBlock({ id: "tok-ver", label: "VER 1B", value: "80", type: "session", x: 74, y: 102, width: 90 })}
+              ${dataBlock({ id: "tok-ts", label: "TIME 8B", value: shortHex(t.timestamp, 12), type: "session", x: 176, y: 102, width: 120 })}
+              ${dataBlock({ id: "tok-iv", label: "IV 16B", value: shortHex(t.iv_hex, 18), type: "iv", x: 308, y: 102, width: 132 })}
+              ${dataBlock({ id: "tok-ct", label: "CIPHERTEXT", value: `${(t.ciphertext_hex || "").length / 2}B`, type: "cipher", x: 452, y: 102, width: 150 })}
+              ${dataBlock({ id: "tok-hmac", label: "HMAC 32B", value: shortHex(t.hmac_hex, 18), type: "hmac", x: 614, y: 102, width: 150 })}
+              <text class="stage-glyph" x="54" y="226" fill="var(--text-code)" font-family="Fira Code" font-size="12" opacity="0">${escapeHtml(preview(t.token || "", 112))}</text>
+            `);
+          },
+          animate: genericAnimate
+        },
+        {
+          id: "base64",
+          label: "Base64url",
+          title: "Step 6 — Base64url Encoding",
+          body: "The binary token becomes URL-safe text. This final string is the ciphertext you copy, store, or paste back for decryption.",
+          dataCallout: (t) => `Final token length: ${escapeHtml(t.token_length)} characters<br>${escapeHtml(preview(t.token, 120))}`,
+          render: (el, t) => {
+            const hex = `${t.token_components?.version || ""}${t.token_components?.timestamp || ""}${t.token_components?.iv || ""}${shortHex(t.ciphertext_hex, 32)}`;
+            el.innerHTML = svgShell(`
+              <text x="64" y="42" fill="var(--text-secondary)" font-family="Space Mono" font-size="12">RAW TOKEN BYTES</text>
+              <foreignObject x="64" y="60" width="328" height="172">
+                <div xmlns="http://www.w3.org/1999/xhtml" class="hex-row">${(hex.match(/.{1,2}/g) || []).slice(0, 36).map((b) => `<span class="hex-byte">${escapeHtml(b.toUpperCase())}</span>`).join("")}</div>
+              </foreignObject>
+              <path class="stage-glyph" d="M424 142 L512 142" stroke="var(--accent-primary)" stroke-width="2" marker-end="url(#arrow)" opacity="0"></path>
+              <text x="558" y="42" fill="var(--text-secondary)" font-family="Space Mono" font-size="12">BASE64URL TEXT</text>
+              <foreignObject x="558" y="60" width="280" height="172">
+                <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:Fira Code;color:var(--text-code);font-size:12px;line-height:1.55;overflow-wrap:anywhere;">${escapeHtml(preview(t.token, 190))}</div>
+              </foreignObject>
+            `);
+          },
+          animate: genericAnimate
+        }
+      ];
+    }
+
+    function fernetDecryptStages() {
+      return [
+        {
+          id: "parse",
+          label: "Token parsing",
+          title: "Step 1 — Token Parsing",
+          body: "The Base64url Fernet token is decoded and split into version, timestamp, IV, ciphertext, and stored HMAC.",
+          dataCallout: (t) => `Version ${escapeHtml(t.token_components?.version || "??")}<br>IV ${escapeHtml(shortHex(t.token_components?.iv || t.iv_hex, 32))}<br>Ciphertext bytes: ${escapeHtml((t.ciphertext_hex || "").length / 2)}`,
+          render: (el, t) => fernetEncryptStages()[4].render(el, t),
+          animate: genericAnimate
+        },
+        {
+          id: "hmac-verify",
+          label: "HMAC verify",
+          title: "Step 2 — HMAC Verification",
+          body: "The HMAC is recomputed from the token bytes. Matching tags prove the key and token are consistent before decryption releases plaintext.",
+          dataCallout: (t) => `Stored: ${escapeHtml(shortHex(t.hmac_hex, 32))}<br>Computed: ${escapeHtml(shortHex(t.computed_hmac_hex, 32))}<br>Status: ${t.hmac_valid ? "MATCH ✓" : "NO MATCH ✕"}`,
+          render: (el, t) => {
+            el.innerHTML = svgShell(`
+              ${dataBlock({ id: "stored-hmac", label: "STORED HMAC", value: shortHex(t.hmac_hex, 24), type: "hmac", x: 150, y: 96, width: 210 })}
+              ${dataBlock({ id: "computed-hmac", label: "RECOMPUTED", value: shortHex(t.computed_hmac_hex, 24), type: t.hmac_valid ? "hmac" : "cipher", x: 540, y: 96, width: 210 })}
+              <text class="stage-glyph" x="450" y="126" text-anchor="middle" fill="${t.hmac_valid ? "var(--accent-success)" : "var(--accent-danger)"}" font-family="Space Mono" font-size="40" opacity="0">${t.hmac_valid ? "✓" : "✕"}</text>
+              <text class="stage-glyph" x="450" y="174" text-anchor="middle" fill="${t.hmac_valid ? "var(--accent-success)" : "var(--accent-danger)"}" font-family="Space Mono" font-size="16" opacity="0">${t.hmac_valid ? "MATCH" : "NO MATCH"}</text>
+            `);
+          },
+          animate: async (el, t, speed) => {
+            await genericAnimate(el, t, speed);
+            await (t.hmac_valid ? successFlash(el.querySelector("svg"), speed) : failureShake(el.querySelector("svg"), speed));
+          },
+          stopOnHmacFailure: true
+        },
+        {
+          id: "aes-decrypt",
+          label: "AES-CBC decrypt",
+          title: "Step 3 — AES-CBC Decryption",
+          body: "Ciphertext blocks pass through AES with the same key. Each decrypted block is XORed with the previous ciphertext block or IV.",
+          dataCallout: (t) => `IV: ${escapeHtml(shortHex(t.iv_hex, 32))}<br>Padded plaintext hex: ${escapeHtml(shortHex(t.padded_hex, 64))}`,
+          render: (el, t) => {
+            el.innerHTML = svgShell(`
+              ${dataBlock({ id: "ct-in", label: "CIPHERTEXT", value: `${(t.ciphertext_hex || "").length / 2} bytes`, type: "cipher", x: 62, y: 120, width: 160 })}
+              <rect class="stage-glyph" x="342" y="78" width="170" height="114" rx="10" fill="rgba(5,10,20,0.9)" stroke="var(--accent-primary)" opacity="0"></rect>
+              <text class="stage-glyph" x="427" y="124" text-anchor="middle" fill="var(--accent-primary)" font-family="Space Mono" font-size="17" opacity="0">AES-128</text>
+              <text class="stage-glyph" x="427" y="154" text-anchor="middle" fill="var(--text-secondary)" font-family="Fira Code" font-size="12" opacity="0">decrypt + XOR chain</text>
+              ${dataBlock({ id: "iv-in", label: "IV / PREV CT", value: shortHex(t.iv_hex, 18), type: "iv", x: 352, y: 18, width: 150 })}
+              ${dataBlock({ id: "pt-out", label: "PADDED PT", value: `${(t.padded_hex || "").length / 2} bytes`, type: "plaintext", x: 650, y: 120, width: 160 })}
+              <path class="stage-glyph" d="M226 144 L338 144" stroke="var(--block-cipher-bright)" stroke-width="2" marker-end="url(#arrow)" opacity="0"></path>
+              <path class="stage-glyph" d="M512 144 L646 144" stroke="var(--block-plaintext-bright)" stroke-width="2" marker-end="url(#arrow)" opacity="0"></path>
+            `);
+          },
+          animate: genericAnimate
+        },
+        {
+          id: "unpad",
+          label: "Padding removal",
+          title: "Step 4 — PKCS7 Padding Removal",
+          body: "The final padding bytes are checked and removed. Their value tells exactly how many padding bytes were added.",
+          dataCallout: (t) => `Padding removed: ${escapeHtml(t.padding_count)} × 0x${Number(t.padding_byte || 0).toString(16).padStart(2, "0").toUpperCase()}`,
+          render: (el, t) => {
+            el.innerHTML = svgShell(`
+              <text x="34" y="44" fill="var(--text-secondary)" font-family="Space Mono" font-size="12">PADDED BLOCK</text>
+              ${paddedCells(t, 34, 72)}
+              <path class="stage-glyph" d="M398 222 L508 222" stroke="var(--accent-primary)" stroke-width="2" marker-end="url(#arrow)" opacity="0"></path>
+              ${dataBlock({ id: "plain-recovered", label: "PLAINTEXT", value: preview(t.plaintext, 18), type: "plaintext", x: 548, y: 196, width: 190 })}
+            `);
+          },
+          animate: genericAnimate
+        },
+        {
+          id: "plain-reveal",
+          label: "Plaintext",
+          title: "Step 5 — Plaintext Revealed",
+          body: "The original UTF-8 text is recovered exactly as it was before encryption.",
+          dataCallout: (t) => `Recovered text:<br>${escapeHtml(t.plaintext || "")}`,
+          render: (el, t) => {
+            el.innerHTML = svgShell(`
+              <text x="450" y="78" text-anchor="middle" fill="var(--block-plaintext-bright)" font-family="Space Mono" font-size="16">RECOVERED PLAINTEXT</text>
+              ${textCells(t.plaintext || "", 98, 116, 36)}
+            `);
+          },
+          animate: genericAnimate
+        }
+      ];
+    }
+
+    function rsaEncryptStages() {
+      return [
+        {
+          id: "oaep",
+          label: "OAEP padding",
+          title: "Step 1 — OAEP Padding",
+          body: "OAEP adds a random seed and mask structure around the message. That randomness is why the same plaintext encrypts differently.",
+          dataCallout: (t) => `Plaintext bytes: ${escapeHtml(t.plaintext_bytes)}<br>OAEP hash: ${escapeHtml(t.oaep_hash || "SHA-256")}`,
+          render: (el, t) => {
+            const seed = (t.ciphertext_hex_prefix || "00112233445566778899AABBCCDDEEFF").match(/.{1,2}/g) || [];
+            el.innerHTML = svgShell(`
+              ${dataBlock({ id: "msg", label: "MESSAGE", value: preview(t.plaintext, 16), type: "plaintext", x: 60, y: 122, width: 150 })}
+              ${byteCells(seed.slice(0, 16).map((b) => b.toUpperCase()), 292, 68, "iv", "oaep-seed", 16)}
+              ${dataBlock({ id: "masked-seed", label: "MASKED SEED", value: "MGF1(seed)", type: "key", x: 540, y: 88, width: 160 })}
+              ${dataBlock({ id: "masked-db", label: "MASKED DB", value: "hash | PS | msg", type: "plaintext", x: 540, y: 166, width: 160 })}
+              <path class="stage-glyph" d="M214 144 L292 136" stroke="var(--accent-primary)" stroke-width="2" marker-end="url(#arrow)" opacity="0"></path>
+              <path class="stage-glyph" d="M460 110 L536 110" stroke="var(--block-key-bright)" stroke-width="2" marker-end="url(#arrow)" opacity="0"></path>
+              <path class="stage-glyph" d="M460 150 L536 188" stroke="var(--block-plaintext-bright)" stroke-width="2" marker-end="url(#arrow)" opacity="0"></path>
+            `);
+          },
+          animate: async (el, t, speed) => {
+            await animateGlyphs(el, speed, ".stage-glyph");
+            const seed = (t.ciphertext_hex_prefix || "").match(/.{1,2}/g) || [];
+            await animateSlotMachine(el, seed.slice(0, 16).map((b) => b.toUpperCase()), speed, ".byte-cell text");
+          }
+        },
+        {
+          id: "modexp",
+          label: "Mod exponent",
+          title: "Step 2 — Modular Exponentiation",
+          body: "The padded message enters the public-key lock. The public exponent e = 65537 and modulus n transform it into a 2048-bit ciphertext.",
+          dataCallout: (t) => `e = ${escapeHtml(t.public_exponent)}<br>n starts ${escapeHtml(t.modulus_prefix)}<br>n ends ${escapeHtml(t.modulus_suffix)}`,
+          render: (el, t) => {
+            el.innerHTML = svgShell(`
+              ${dataBlock({ id: "padded", label: "PADDED M", value: "OAEP block", type: "plaintext", x: 72, y: 126, width: 150 })}
+              <circle class="stage-glyph spin-dial" cx="450" cy="144" r="74" fill="rgba(5,10,20,0.9)" stroke="var(--block-session-bright)" stroke-width="2" opacity="0"></circle>
+              <circle class="stage-glyph" cx="450" cy="144" r="32" fill="var(--block-session)" stroke="var(--block-session-bright)" opacity="0"></circle>
+              <text class="stage-glyph" x="450" y="150" text-anchor="middle" fill="var(--block-session-bright)" font-family="Space Mono" font-size="18" opacity="0">LOCK</text>
+              <text class="stage-glyph" x="450" y="56" text-anchor="middle" fill="var(--accent-primary)" font-family="Fira Code" font-size="13" opacity="0">C = M^${escapeHtml(t.public_exponent || 65537)} mod n</text>
+              ${dataBlock({ id: "rsa-ct", label: "RSA CT", value: `${t.ciphertext_bytes || 256} bytes`, type: "cipher", x: 672, y: 126, width: 150 })}
+              <path class="stage-glyph" d="M226 148 L372 148" stroke="var(--block-plaintext-bright)" stroke-width="2" marker-end="url(#arrow)" opacity="0"></path>
+              <path class="stage-glyph" d="M528 148 L668 148" stroke="var(--block-cipher-bright)" stroke-width="2" marker-end="url(#arrow)" opacity="0"></path>
+            `);
+          },
+          animate: genericAnimate
+        },
+        {
+          id: "base64",
+          label: "Base64",
+          title: "Step 3 — Base64 Encoding",
+          body: "The binary RSA ciphertext is 256 bytes for a 2048-bit key. Base64 turns it into text that can travel through JSON and forms.",
+          dataCallout: (t) => `Binary output: ${escapeHtml(t.ciphertext_bytes)} bytes<br>Base64 output: ${escapeHtml(t.ciphertext_b64_len)} characters`,
+          render: (el, t) => {
+            el.innerHTML = svgShell(`
+              ${dataBlock({ id: "binary-rsa", label: "BINARY CT", value: `${t.ciphertext_bytes || 256} bytes`, type: "cipher", x: 140, y: 118, width: 170 })}
+              <path class="stage-glyph" d="M326 142 L508 142" stroke="var(--accent-primary)" stroke-width="2" marker-end="url(#arrow)" opacity="0"></path>
+              ${dataBlock({ id: "b64-rsa", label: "BASE64 CT", value: `${t.ciphertext_b64_len || 344} chars`, type: "cipher", x: 530, y: 118, width: 180 })}
+              <text class="stage-glyph" x="450" y="218" text-anchor="middle" fill="var(--text-code)" font-family="Fira Code" font-size="12" opacity="0">${escapeHtml(t.ciphertext_b64_preview || "")}</text>
+            `);
+          },
+          animate: genericAnimate
+        },
+        {
+          id: "rsa-result",
+          label: "Result",
+          title: "Step 4 — RSA Result",
+          body: "RSA ciphertext size is fixed by the key size. Even a tiny message becomes one full 2048-bit ciphertext block before Base64 encoding.",
+          dataCallout: (t) => `Input: ${escapeHtml(t.plaintext_bytes)} bytes<br>Output: ${escapeHtml(t.ciphertext_b64_len)} Base64 characters`,
+          render: (el, t) => {
+            el.innerHTML = svgShell(`
+              ${dataBlock({ id: "rsa-input-size", label: "INPUT", value: `${t.plaintext_bytes} bytes`, type: "plaintext", x: 206, y: 114, width: 170 })}
+              ${dataBlock({ id: "rsa-output-size", label: "OUTPUT", value: `${t.ciphertext_b64_len} chars`, type: "cipher", x: 526, y: 114, width: 170 })}
+              <text class="stage-glyph" x="450" y="144" text-anchor="middle" fill="var(--accent-primary)" font-family="Space Mono" font-size="26" opacity="0">→</text>
+              <text class="stage-glyph" x="450" y="214" text-anchor="middle" fill="var(--text-secondary)" font-family="DM Sans" font-size="14" opacity="0">RSA-2048 always emits 256 binary bytes.</text>
+            `);
+          },
+          animate: genericAnimate
+        }
+      ];
+    }
+
+    function rsaDecryptStages() {
+      return [
+        {
+          id: "private-key",
+          label: "Private key",
+          title: "Step 1 — Private Key Application",
+          body: "The ciphertext enters the RSA lock in reverse. The private exponent d, known only to the private key holder, recovers the OAEP-padded message.",
+          dataCallout: (t) => `d starts ${escapeHtml(t.private_exponent_prefix || "...")}<br>d ends ${escapeHtml(t.private_exponent_suffix || "...")}`,
+          render: (el, t) => {
+            el.innerHTML = svgShell(`
+              ${dataBlock({ id: "rsa-ct-in", label: "RSA CT", value: `${t.ciphertext_bytes || 256} bytes`, type: "cipher", x: 88, y: 126, width: 160 })}
+              <circle class="stage-glyph spin-dial" cx="450" cy="144" r="74" fill="rgba(5,10,20,0.9)" stroke="var(--block-key-bright)" stroke-width="2" opacity="0"></circle>
+              <text class="stage-glyph" x="450" y="150" text-anchor="middle" fill="var(--block-key-bright)" font-family="Space Mono" font-size="16" opacity="0">d</text>
+              ${dataBlock({ id: "oaep-out", label: "OAEP BLOCK", value: "unpadded next", type: "plaintext", x: 656, y: 126, width: 160 })}
+              <path class="stage-glyph" d="M252 148 L372 148" stroke="var(--block-cipher-bright)" stroke-width="2" marker-end="url(#arrow)" opacity="0"></path>
+              <path class="stage-glyph" d="M528 148 L652 148" stroke="var(--block-plaintext-bright)" stroke-width="2" marker-end="url(#arrow)" opacity="0"></path>
+            `);
+          },
+          animate: genericAnimate
+        },
+        {
+          id: "oaep-unpad",
+          label: "OAEP unpad",
+          title: "Step 2 — OAEP Unpadding",
+          body: "OAEP masks are reversed, the label hash is checked, zero padding is skipped, and the original message bytes are extracted.",
+          dataCallout: (t) => `OAEP hash checked: ${escapeHtml(t.oaep_hash || "SHA-256")}<br>Recovered bytes: ${escapeHtml(t.plaintext_bytes)}`,
+          render: (el, t) => {
+            el.innerHTML = svgShell(`
+              ${dataBlock({ id: "masked-seed-in", label: "MASKED SEED", value: "reverse MGF1", type: "key", x: 92, y: 80, width: 180 })}
+              ${dataBlock({ id: "masked-db-in", label: "MASKED DB", value: "hash | PS | msg", type: "plaintext", x: 92, y: 166, width: 180 })}
+              <path class="stage-glyph" d="M300 110 L500 110" stroke="var(--block-key-bright)" stroke-width="2" marker-end="url(#arrow)" opacity="0"></path>
+              <path class="stage-glyph" d="M300 188 L500 188" stroke="var(--block-plaintext-bright)" stroke-width="2" marker-end="url(#arrow)" opacity="0"></path>
+              ${dataBlock({ id: "rsa-plain", label: "MESSAGE", value: preview(t.plaintext, 18), type: "plaintext", x: 536, y: 124, width: 190 })}
+            `);
+          },
+          animate: genericAnimate
+        },
+        {
+          id: "rsa-plain",
+          label: "Plaintext",
+          title: "Step 3 — Plaintext Reveal",
+          body: "The recovered message appears as UTF-8 characters.",
+          dataCallout: (t) => `Recovered text:<br>${escapeHtml(t.plaintext || "")}`,
+          render: (el, t) => {
+            el.innerHTML = svgShell(`
+              <text x="450" y="78" text-anchor="middle" fill="var(--block-plaintext-bright)" font-family="Space Mono" font-size="16">RSA PLAINTEXT</text>
+              ${textCells(t.plaintext || "", 98, 116, 36)}
+            `);
+          },
+          animate: genericAnimate
+        }
+      ];
+    }
+
+    function hybridEncryptStages() {
+      return [
+        {
+          id: "session-key",
+          label: "Session key",
+          title: "Step 1 — Fresh Session Key",
+          body: "Hybrid mode starts by generating a one-time Fernet session key for this message. The two-track story begins here.",
+          dataCallout: (t) => `Session key bytes:<br>${escapeHtml((t.session_key_bytes || []).slice(0, 16).join(" "))}`,
+          render: (el, t) => {
+            const placeholders = Array(32).fill("??");
+            el.innerHTML = svgShell(`
+              <text x="244" y="46" text-anchor="middle" fill="var(--block-iv-bright)" font-family="Space Mono" font-size="14">MESSAGE TRACK</text>
+              <text x="656" y="46" text-anchor="middle" fill="var(--block-key-bright)" font-family="Space Mono" font-size="14">KEY TRACK</text>
+              <line class="stage-glyph" x1="450" y1="42" x2="450" y2="260" stroke="var(--border-default)" opacity="0"></line>
+              ${byteCells(placeholders, 116, 92, "session", "session-byte", 32)}
+              <text class="stage-glyph" x="450" y="248" text-anchor="middle" fill="var(--block-hybrid-bright)" font-family="Fira Code" font-size="12" opacity="0">${escapeHtml(preview(t.session_key_b64, 78))}</text>
+            `);
+          },
+          animate: async (el, t, speed) => {
+            await animateGlyphs(el, speed, ".stage-glyph");
+            await animateSlotMachine(el, t.session_key_bytes || [], speed, ".byte-cell text");
+            await successFlash(el.querySelector("svg"), speed);
+          }
+        },
+        {
+          id: "message-track",
+          label: "Fernet track",
+          title: "Step 2 — Fernet Encrypts the Message",
+          body: "On the left track, the session key drives Fernet: padding, IV generation, AES-CBC encryption, and HMAC signing compress into one token.",
+          dataCallout: (t) => `Fernet IV: ${escapeHtml(shortHex(t.fernet_iv_hex, 32))}<br>Message token length: ${escapeHtml(t.message_encrypted_len)}`,
+          render: (el, t) => {
+            el.innerHTML = svgShell(`
+              ${dataBlock({ id: "hy-plain", label: "MESSAGE", value: preview(t.plaintext, 18), type: "plaintext", x: 72, y: 116, width: 160 })}
+              ${dataBlock({ id: "hy-session", label: "SESSION KEY", value: "Fernet key", type: "session", x: 360, y: 42, width: 170 })}
+              <rect class="stage-glyph" x="332" y="118" width="220" height="94" rx="10" fill="rgba(5,10,20,0.9)" stroke="var(--block-hybrid-bright)" opacity="0"></rect>
+              <text class="stage-glyph" x="442" y="154" text-anchor="middle" fill="var(--block-hybrid-bright)" font-family="Space Mono" font-size="16" opacity="0">FERNET</text>
+              <text class="stage-glyph" x="442" y="182" text-anchor="middle" fill="var(--text-secondary)" font-family="Fira Code" font-size="11" opacity="0">pad → IV → AES → HMAC</text>
+              ${dataBlock({ id: "hy-token", label: "TOKEN", value: `${t.message_encrypted_len} chars`, type: "cipher", x: 666, y: 132, width: 150 })}
+              <path class="stage-glyph" d="M236 140 L328 152" stroke="var(--block-plaintext-bright)" stroke-width="2" marker-end="url(#arrow)" opacity="0"></path>
+              <path class="stage-glyph" d="M444 88 L444 114" stroke="var(--block-hybrid-bright)" stroke-width="2" marker-end="url(#arrow)" opacity="0"></path>
+              <path class="stage-glyph" d="M552 164 L662 156" stroke="var(--block-cipher-bright)" stroke-width="2" marker-end="url(#arrow)" opacity="0"></path>
+            `);
+          },
+          animate: genericAnimate
+        },
+        {
+          id: "key-track",
+          label: "RSA track",
+          title: "Step 3 — RSA Encrypts the Session Key",
+          body: "On the right track, the same session key is OAEP-padded and locked with the receiver's public key. This creates the second output.",
+          dataCallout: (t) => `Encrypted session key length: ${escapeHtml(t.session_key_encrypted_len)} chars<br>Public exponent: ${escapeHtml(t.rsa?.public_exponent || 65537)}`,
+          render: (el, t) => {
+            el.innerHTML = svgShell(`
+              ${dataBlock({ id: "hy-session2", label: "SESSION KEY", value: "44-char Fernet key", type: "session", x: 72, y: 126, width: 190 })}
+              ${dataBlock({ id: "hy-public", label: "PUBLIC KEY", value: "RSA-2048", type: "session", x: 350, y: 44, width: 170 })}
+              <circle class="stage-glyph spin-dial" cx="450" cy="162" r="66" fill="rgba(5,10,20,0.9)" stroke="var(--block-session-bright)" opacity="0"></circle>
+              <text class="stage-glyph" x="450" y="168" text-anchor="middle" fill="var(--block-session-bright)" font-family="Space Mono" font-size="16" opacity="0">RSA</text>
+              ${dataBlock({ id: "hy-ekey", label: "ENCRYPTED KEY", value: `${t.session_key_encrypted_len} chars`, type: "key", x: 644, y: 126, width: 180 })}
+              <path class="stage-glyph" d="M266 150 L382 158" stroke="var(--block-hybrid-bright)" stroke-width="2" marker-end="url(#arrow)" opacity="0"></path>
+              <path class="stage-glyph" d="M438 90 L442 98" stroke="var(--block-session-bright)" stroke-width="2" marker-end="url(#arrow)" opacity="0"></path>
+              <path class="stage-glyph" d="M518 162 L640 152" stroke="var(--block-key-bright)" stroke-width="2" marker-end="url(#arrow)" opacity="0"></path>
+            `);
+          },
+          animate: genericAnimate
+        },
+        {
+          id: "package",
+          label: "Two outputs",
+          title: "Step 4 — Two-Output Assembly",
+          body: "Hybrid encryption delivers two artifacts. The encrypted message needs the session key; the encrypted session key needs the receiver's private RSA key.",
+          dataCallout: () => "Recipient must receive both parts:<br>1. Encrypted message<br>2. Encrypted session key",
+          render: (el, t) => {
+            el.innerHTML = svgShell(`
+              <rect class="stage-glyph" x="208" y="70" width="486" height="164" rx="12" fill="rgba(5,10,20,0.72)" stroke="var(--border-active)" opacity="0"></rect>
+              <text class="stage-glyph" x="450" y="104" text-anchor="middle" fill="var(--accent-primary)" font-family="Space Mono" font-size="16" opacity="0">DELIVERY PACKAGE</text>
+              ${dataBlock({ id: "pkg-msg", label: "ENCRYPTED MESSAGE", value: `${t.message_encrypted_len} chars`, type: "cipher", x: 258, y: 132, width: 180 })}
+              ${dataBlock({ id: "pkg-key", label: "ENCRYPTED KEY", value: `${t.session_key_encrypted_len} chars`, type: "key", x: 464, y: 132, width: 180 })}
+            `);
+          },
+          animate: genericAnimate
+        },
+        {
+          id: "why-hybrid",
+          label: "Why hybrid",
+          title: "Step 5 — Why Hybrid Wins",
+          body: "Fernet brings speed and long-message support. RSA brings safe key transport. Together they cover both needs cleanly.",
+          dataCallout: () => "Fernet: fast + any length<br>RSA: secure key transport<br>Hybrid: both properties together",
+          render: (el) => {
+            el.innerHTML = svgShell(`
+              <text class="stage-glyph" x="190" y="64" fill="var(--text-secondary)" font-family="Space Mono" font-size="14" opacity="0">FERNET ALONE</text>
+              <text class="stage-glyph" x="420" y="64" fill="var(--text-secondary)" font-family="Space Mono" font-size="14" opacity="0">RSA ALONE</text>
+              <text class="stage-glyph" x="650" y="64" fill="var(--block-hybrid-bright)" font-family="Space Mono" font-size="14" opacity="0">HYBRID</text>
+              ${["Fast encryption ✓", "Any length ✓", "Secure key dist ✕"].map((txt, i) => `<text class="stage-glyph" x="190" y="${108 + i * 42}" text-anchor="middle" fill="${i === 2 ? "var(--accent-danger)" : "var(--accent-success)"}" font-family="DM Sans" font-size="15" opacity="0">${txt}</text>`).join("")}
+              ${["Secure key dist ✓", "Any length ✕", "Very slow ✕"].map((txt, i) => `<text class="stage-glyph" x="420" y="${108 + i * 42}" text-anchor="middle" fill="${i === 0 ? "var(--accent-success)" : "var(--accent-danger)"}" font-family="DM Sans" font-size="15" opacity="0">${txt}</text>`).join("")}
+              ${["Fast encryption ✓", "Any length ✓", "Secure key dist ✓"].map((txt, i) => `<text class="stage-glyph" x="650" y="${108 + i * 42}" text-anchor="middle" fill="var(--block-hybrid-bright)" font-family="DM Sans" font-size="15" opacity="0">${txt}</text>`).join("")}
+            `);
+          },
+          animate: genericAnimate
+        }
+      ];
+    }
+
+    function hybridDecryptStages() {
+      return [
+        {
+          id: "unpack",
+          label: "Unpack",
+          title: "Step 1 — Receive Two Artifacts",
+          body: "Hybrid decryption starts with the encrypted Fernet token and the RSA-encrypted session key.",
+          dataCallout: (t) => `Message token length: ${escapeHtml(t.message_encrypted_len)}<br>Encrypted key length: ${escapeHtml(t.session_key_encrypted_len)}`,
+          render: (el, t) => hybridEncryptStages()[3].render(el, t),
+          animate: genericAnimate
+        },
+        {
+          id: "unwrap",
+          label: "RSA unwrap",
+          title: "Step 2 — RSA Recovers the Session Key",
+          body: "The receiver's private key unlocks the RSA ciphertext and recovers the exact Fernet session key.",
+          dataCallout: (t) => `Recovered session key:<br>${escapeHtml(preview(t.session_key_b64, 86))}`,
+          render: (el, t) => {
+            el.innerHTML = svgShell(`
+              ${dataBlock({ id: "enc-key", label: "ENCRYPTED KEY", value: `${t.session_key_encrypted_len} chars`, type: "key", x: 96, y: 126, width: 180 })}
+              <circle class="stage-glyph spin-dial" cx="450" cy="150" r="70" fill="rgba(5,10,20,0.9)" stroke="var(--block-key-bright)" opacity="0"></circle>
+              <text class="stage-glyph" x="450" y="156" text-anchor="middle" fill="var(--block-key-bright)" font-family="Space Mono" font-size="16" opacity="0">PRIVATE</text>
+              ${dataBlock({ id: "recovered-session", label: "SESSION KEY", value: "Fernet key", type: "session", x: 634, y: 126, width: 180 })}
+              <path class="stage-glyph" d="M280 150 L376 150" stroke="var(--block-key-bright)" stroke-width="2" marker-end="url(#arrow)" opacity="0"></path>
+              <path class="stage-glyph" d="M522 150 L630 150" stroke="var(--block-hybrid-bright)" stroke-width="2" marker-end="url(#arrow)" opacity="0"></path>
+            `);
+          },
+          animate: genericAnimate
+        },
+        {
+          id: "fernet-decrypt",
+          label: "Fernet decrypt",
+          title: "Step 3 — Fernet Decrypts the Message",
+          body: "The recovered session key verifies the HMAC and decrypts the Fernet token back to padded plaintext, then removes padding.",
+          dataCallout: (t) => `Fernet IV: ${escapeHtml(shortHex(t.fernet_iv_hex, 32))}<br>HMAC prefix: ${escapeHtml(t.fernet_hmac_prefix)}`,
+          render: (el, t) => {
+            el.innerHTML = svgShell(`
+              ${dataBlock({ id: "token-in", label: "TOKEN", value: `${t.message_encrypted_len} chars`, type: "cipher", x: 72, y: 126, width: 170 })}
+              ${dataBlock({ id: "session-in", label: "SESSION KEY", value: "Fernet key", type: "session", x: 352, y: 44, width: 170 })}
+              <rect class="stage-glyph" x="330" y="126" width="224" height="90" rx="10" fill="rgba(5,10,20,0.9)" stroke="var(--block-hybrid-bright)" opacity="0"></rect>
+              <text class="stage-glyph" x="442" y="163" text-anchor="middle" fill="var(--block-hybrid-bright)" font-family="Space Mono" font-size="16" opacity="0">FERNET DECRYPT</text>
+              ${dataBlock({ id: "hy-plain-out", label: "PLAINTEXT", value: preview(t.plaintext, 18), type: "plaintext", x: 666, y: 134, width: 160 })}
+              <path class="stage-glyph" d="M246 150 L326 158" stroke="var(--block-cipher-bright)" stroke-width="2" marker-end="url(#arrow)" opacity="0"></path>
+              <path class="stage-glyph" d="M438 90 L440 122" stroke="var(--block-hybrid-bright)" stroke-width="2" marker-end="url(#arrow)" opacity="0"></path>
+              <path class="stage-glyph" d="M554 170 L662 158" stroke="var(--block-plaintext-bright)" stroke-width="2" marker-end="url(#arrow)" opacity="0"></path>
+            `);
+          },
+          animate: genericAnimate
+        },
+        {
+          id: "hybrid-plain",
+          label: "Plaintext",
+          title: "Step 4 — Plaintext Revealed",
+          body: "Both tracks have converged: the RSA track recovered the key, and the Fernet track recovered the message.",
+          dataCallout: (t) => `Recovered text:<br>${escapeHtml(t.plaintext || "")}`,
+          render: (el, t) => {
+            el.innerHTML = svgShell(`
+              <text x="450" y="78" text-anchor="middle" fill="var(--block-plaintext-bright)" font-family="Space Mono" font-size="16">HYBRID PLAINTEXT</text>
+              ${textCells(t.plaintext || "", 98, 116, 36)}
+            `);
+          },
+          animate: genericAnimate
+        }
+      ];
+    }
+
+    const StageRegistry = {
+      fernet: { encrypt: fernetEncryptStages(), decrypt: fernetDecryptStages() },
+      rsa: { encrypt: rsaEncryptStages(), decrypt: rsaDecryptStages() },
+      hybrid: { encrypt: hybridEncryptStages(), decrypt: hybridDecryptStages() }
+    };
+
+    class ProcessTheater {
+      constructor() {
+        this.container = document.querySelector("#processTheater");
+        this.stageEl = document.querySelector("#theaterStage");
+        this.trackEl = document.querySelector("#stageTrack");
+        this.modeBadge = document.querySelector("#theaterModeBadge");
+        this.titleEl = document.querySelector("#stageTitle");
+        this.bodyEl = document.querySelector("#stageBody");
+        this.calloutEl = document.querySelector("#stageDataCallout");
+        this.counterEl = document.querySelector("#stageCounter");
+        this.speed = 0.5;
+        this.stages = [];
+        this.currentStage = 0;
+        this.telemetry = {};
+        this.mode = "fernet";
+        this.operation = "encrypt";
+        this.playToken = 0;
+        this.explore = false;
+        this.currentCalloutHtml = "";
+        this.tooltip = document.createElement("div");
+        this.tooltip.className = "theater-tooltip";
+        this.tooltip.hidden = true;
+        document.body.appendChild(this.tooltip);
+      }
+
+      async load(mode, operation, telemetry = {}, autoplay = true) {
+        this.playToken += 1;
+        this.mode = mode;
+        this.operation = operation;
+        this.telemetry = telemetry || {};
+        this.stages = StageRegistry[mode]?.[operation] || [];
+        this.currentStage = 0;
+        this.modeBadge.textContent = `${mode} ${operation}`.toUpperCase();
+        this.show();
+        this.renderTrack();
+        if (this.explore || !autoplay) {
+          await this.runStage(0, { animate: false });
+        } else {
+          await this.play();
+        }
+      }
+
+      show() {
+        this.container.hidden = false;
+        this.container.scrollIntoView({ behavior: reducedMotion ? "auto" : "smooth", block: "nearest" });
+      }
+
+      hide() {
+        this.playToken += 1;
+        this.container.hidden = true;
+      }
+
+      setSpeed(speed) {
+        this.speed = Number(speed);
+      }
+
+      toggleExplore() {
+        this.explore = !this.explore;
+        this.playToken += 1;
+        return this.explore;
+      }
+
+      async replay() {
+        await this.load(this.mode, this.operation, this.telemetry, !this.explore);
+      }
+
+      async play() {
+        const token = ++this.playToken;
+        for (let i = 0; i < this.stages.length; i++) {
+          if (token !== this.playToken) return;
+          await this.runStage(i, { token, animate: true });
+          if (token !== this.playToken) return;
+          if (this.stages[i].stopOnHmacFailure && this.telemetry.hmac_valid === false) return;
+          await delay(900, this.speed);
+        }
+      }
+
+      async goTo(index, animate = false) {
+        if (index < 0 || index >= this.stages.length) return;
+        this.playToken += 1;
+        await this.runStage(index, { animate });
+      }
+
+      async runStage(index, options = {}) {
+        this.currentStage = index;
+        const stage = this.stages[index];
+        if (!stage) return;
+        this.updateProgressTrack();
+        this.updateDescription(stage);
+        syncExplanationStage(index);
+        await this.crossfadeOut();
+        stage.render(this.stageEl, this.telemetry, this.speed);
+        this.bindTooltips();
+        await this.crossfadeIn();
+        if (options.animate && stage.animate) {
+          await stage.animate(this.stageEl, this.telemetry, this.speed);
+        } else {
+          this.stageEl.querySelectorAll(".stage-glyph").forEach((glyph) => {
+            glyph.style.opacity = "1";
+          });
+        }
+      }
+
+      renderTrack() {
+        this.trackEl.innerHTML = this.stages.map((stage, index) => `
+          <button class="stage-dot ${index === this.currentStage ? "active" : ""}" type="button" data-stage="${index}">${escapeHtml(stage.label)}</button>
+          ${index === this.stages.length - 1 ? "" : "<span class=\"stage-connector\"></span>"}
+        `).join("");
+        this.trackEl.querySelectorAll("[data-stage]").forEach((button) => {
+          button.addEventListener("click", () => this.goTo(Number(button.dataset.stage), false));
+        });
+      }
+
+      updateProgressTrack() {
+        this.trackEl.querySelectorAll(".stage-dot").forEach((dot, index) => {
+          dot.classList.toggle("active", index === this.currentStage);
+        });
+        this.counterEl.textContent = `Step ${this.currentStage + 1} of ${this.stages.length}`;
+      }
+
+      updateDescription(stage) {
+        this.titleEl.textContent = stage.title;
+        this.bodyEl.textContent = stage.body;
+        this.currentCalloutHtml = stage.dataCallout ? stage.dataCallout(this.telemetry) : "";
+        this.calloutEl.innerHTML = this.currentCalloutHtml;
+      }
+
+      crossfadeOut() {
+        return this.stageEl.animate(
+          [{ opacity: 1 }, { opacity: 0 }],
+          { duration: reducedMotion ? 1 : 160 / this.speed, easing: "ease-out", fill: "forwards" }
+        ).finished;
+      }
+
+      crossfadeIn() {
+        return this.stageEl.animate(
+          [{ opacity: 0 }, { opacity: 1 }],
+          { duration: reducedMotion ? 1 : 220 / this.speed, easing: "ease-out", fill: "forwards" }
+        ).finished;
+      }
+
+      bindTooltips() {
+        this.stageEl.querySelectorAll("[data-tooltip]").forEach((node) => {
+          node.style.cursor = "crosshair";
+          node.addEventListener("mouseenter", (event) => {
+            const target = event.target.closest("[data-tooltip]");
+            this.tooltip.textContent = target.dataset.tooltip;
+            this.tooltip.hidden = false;
+          });
+          node.addEventListener("mousemove", (event) => {
+            this.tooltip.style.left = `${event.clientX + 12}px`;
+            this.tooltip.style.top = `${event.clientY - 8}px`;
+          });
+          node.addEventListener("mouseleave", () => {
+            this.tooltip.hidden = true;
+          });
+          node.addEventListener("click", (event) => {
+            const target = event.target.closest("[data-tooltip]");
+            this.pinInspection(target.dataset.tooltip);
+          });
+        });
+      }
+
+      pinInspection(text) {
+        this.calloutEl.innerHTML = `${this.currentCalloutHtml}<br><br><span style="color:var(--accent-primary)">INSPECTED</span><br>${escapeHtml(text)}`;
+        this.calloutEl.animate(
+          [
+            { filter: "brightness(1)" },
+            { filter: "brightness(1.55) drop-shadow(0 0 8px var(--accent-primary))" },
+            { filter: "brightness(1)" }
+          ],
+          { duration: reducedMotion ? 1 : 450 / this.speed, easing: "ease-out" }
+        );
+      }
+    }
+
+    const els = {
+      modeBadgeText: document.querySelector("#modeBadgeText"),
+      modeSelector: document.querySelector("#modeSelector"),
+      modeIndicator: document.querySelector("#modeIndicator"),
+      modeTabs: [...document.querySelectorAll(".mode-tab")],
+      textInput: document.querySelector("#textInput"),
+      inputLabel: document.querySelector("#inputLabel"),
+      charCount: document.querySelector("#charCount"),
+      rsaNotice: document.querySelector("#rsaNotice"),
+      keyFields: document.querySelector("#keyFields"),
+      generatedBadge: document.querySelector("#generatedBadge"),
+      generateBtn: document.querySelector("#generateBtn"),
+      encryptBtn: document.querySelector("#encryptBtn"),
+      decryptBtn: document.querySelector("#decryptBtn"),
+      clearBtn: document.querySelector("#clearBtn"),
+      errorCard: document.querySelector("#errorCard"),
+      errorTitle: document.querySelector("#errorTitle"),
+      errorBody: document.querySelector("#errorBody"),
+      errorHint: document.querySelector("#errorHint"),
+      dismissErrorBtn: document.querySelector("#dismissErrorBtn"),
+      resultPanel: document.querySelector("#resultPanel"),
+      resultLabel: document.querySelector("#resultLabel"),
+      resultOutput: document.querySelector("#resultOutput"),
+      sessionKeyBlock: document.querySelector("#sessionKeyBlock"),
+      sessionKeyValue: document.querySelector("#sessionKeyValue"),
+      copyResultBtn: document.querySelector("#copyResultBtn"),
+      copyResultIcon: document.querySelector("#copyResultIcon"),
+      encryptAgainBtn: document.querySelector("#encryptAgainBtn"),
+      randomNote: document.querySelector("#randomNote"),
+      explainTitle: document.querySelector("#explainTitle"),
+      explainSubtitle: document.querySelector("#explainSubtitle"),
+      stepList: document.querySelector("#stepList"),
+      dataRows: document.querySelector("#dataRows"),
+      securityNote: document.querySelector("#securityNote"),
+      speedBtns: [...document.querySelectorAll(".speed-btn")],
+      theaterReplayBtn: document.querySelector("#theaterReplayBtn"),
+      theaterCloseBtn: document.querySelector("#theaterCloseBtn"),
+      exploreBtn: document.querySelector("#exploreBtn"),
+      stagePrevBtn: document.querySelector("#stagePrevBtn"),
+      stageNextBtn: document.querySelector("#stageNextBtn")
+    };
+
+    const processTheater = new ProcessTheater();
+
+    function keyFieldTemplate(id, label, placeholder, options = {}) {
+      const secretBadge = options.secret ? "<span class=\"secret-badge\">Keep this secret</span>" : "";
+      const revealButton = options.secret ? `<button class="btn-icon" type="button" data-reveal="${id}" aria-label="Reveal private key">${appState.privateVisible ? "◉" : "◎"}</button>` : "";
+      const mask = options.secret && !appState.privateVisible ? "<div class=\"private-mask\">Hidden — click reveal</div>" : "";
+      const privateClass = options.secret ? ` field-textarea--private${appState.privateVisible ? "" : " masked"}` : "";
+      return `
+        <div class="key-field">
+          <div class="key-label-row">
+            <label class="field-label" for="${id}"><span class="label-accent">${label.split(" ")[0]}</span> ${label.split(" ").slice(1).join(" ")}</label>
+            <div class="label-actions">
+              ${secretBadge}
+              ${revealButton}
+            </div>
+          </div>
+          <div class="field-wrap">
+            <textarea id="${id}" data-key="${id}" class="field-textarea field-textarea--code field-textarea--compact${privateClass}" placeholder="${placeholder}" spellcheck="false"></textarea>
+            <button class="btn-copy" type="button" data-copy="${id}" aria-label="Copy ${label}">⧉<span class="tooltip">Copied!</span></button>
+            ${mask}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderKeyFields() {
+      const html = {
+        fernet: keyFieldTemplate("fernetKey", "FERNET KEY", "Click Generate Keys or paste a Fernet key..."),
+        rsa: [
+          keyFieldTemplate("publicKey", "RSA PUBLIC KEY", "-----BEGIN PUBLIC KEY-----"),
+          keyFieldTemplate("privateKey", "RSA PRIVATE KEY", "-----BEGIN PRIVATE KEY-----", { secret: true })
+        ].join(""),
+        hybrid: [
+          keyFieldTemplate("publicKey", "RECEIVER PUBLIC KEY", "Paste receiver public key or generate a demo pair..."),
+          keyFieldTemplate("encryptedSessionKey", "ENCRYPTED SESSION KEY", "Paste the encrypted session key for decryption..."),
+          keyFieldTemplate("privateKey", "RECEIVER PRIVATE KEY", "Paste receiver private key for decryption...", { secret: true })
+        ].join("")
+      }[appState.mode];
+      els.keyFields.innerHTML = html;
+      bindFieldButtons();
+    }
+
+    function bindFieldButtons() {
+      document.querySelectorAll("[data-copy]").forEach((button) => {
+        button.addEventListener("click", () => copyValue(document.querySelector(`#${button.dataset.copy}`), button));
+      });
+      document.querySelectorAll("[data-reveal]").forEach((button) => {
+        button.addEventListener("click", () => {
+          appState.privateVisible = !appState.privateVisible;
+          renderKeyFieldsPreservingValues();
+        });
+      });
+    }
+
+    function currentKeyValues() {
+      const values = {};
+      document.querySelectorAll("[data-key]").forEach((field) => {
+        values[field.id] = field.value;
+      });
+      return values;
+    }
+
+    function restoreKeyValues(values) {
+      Object.entries(values).forEach(([id, value]) => {
+        const field = document.querySelector(`#${id}`);
+        if (field) field.value = value;
+      });
+    }
+
+    function renderKeyFieldsPreservingValues() {
+      const values = currentKeyValues();
+      renderKeyFields();
+      restoreKeyValues(values);
+    }
+
+    function renderExplanation(completed = false) {
+      const meta = modeMeta[appState.mode];
+      els.modeBadgeText.textContent = meta.label;
+      els.explainTitle.textContent = meta.title;
+      els.explainSubtitle.textContent = meta.subtitle;
+      els.stepList.innerHTML = meta.steps.map((step, index) => `
+        <article class="step-item ${completed ? "completed" : ""}" data-step-index="${index}" style="transition-delay:${index * 45}ms">
+          <div class="step-number">${String(index + 1).padStart(2, "0")}</div>
+          <div class="step-text">
+            <h3>${step[0]}</h3>
+            <p>${step[1]}</p>
+          </div>
+        </article>
+      `).join("");
+      els.dataRows.innerHTML = meta.data.map((row) => `
+        <tr>
+          <td>${row[0]}</td>
+          <td>${row[1]}</td>
+        </tr>
+      `).join("");
+      els.securityNote.textContent = meta.note;
+    }
+
+    function syncExplanationStage(stageIndex) {
+      const items = [...els.stepList.querySelectorAll(".step-item")];
+      if (!items.length) return;
+      const activeIndex = Math.min(stageIndex, items.length - 1);
+      items.forEach((item, index) => {
+        item.classList.toggle("theater-active", index === activeIndex);
+      });
+    }
+
+    function updateModeIndicator() {
+      const active = document.querySelector(".mode-tab.active");
+      if (!active || window.innerWidth <= 720) return;
+      els.modeIndicator.style.width = `${active.offsetWidth}px`;
+      els.modeIndicator.style.transform = `translateX(${active.offsetLeft - 4}px)`;
+    }
+
+    function setMode(mode) {
+      if (mode === appState.mode) return;
+      appState.mode = mode;
+      document.body.dataset.mode = mode;
+      appState.privateVisible = false;
+      appState.completed = false;
+      els.modeTabs.forEach((tab) => tab.classList.toggle("active", tab.dataset.mode === mode));
+      els.keyFields.classList.add("switching");
+      setTimeout(() => {
+        renderKeyFields();
+        els.keyFields.classList.remove("switching");
+      }, 180);
+      els.textInput.value = "";
+      updateCharCount();
+      hideResult();
+      processTheater.hide();
+      hideError();
+      renderExplanation(false);
+      syncInputContext("encrypt");
+      updateModeIndicator();
+    }
+
+    function syncInputContext(action) {
+      appState.lastAction = action;
+      const decrypt = action === "decrypt";
+      els.inputLabel.textContent = decrypt ? "CIPHERTEXT" : "PLAINTEXT";
+      els.textInput.placeholder = decrypt ? "Paste ciphertext here..." : "Enter your message here...";
+      els.textInput.classList.toggle("field-textarea--code", decrypt);
+      els.rsaNotice.classList.toggle("show", appState.mode === "rsa" && !decrypt);
+    }
+
+    function updateCharCount() {
+      els.charCount.textContent = els.textInput.value.length;
+    }
+
+    function field(id) {
+      return document.querySelector(`#${id}`);
+    }
+
+    function fieldValue(id) {
+      return field(id)?.value.trim() || "";
+    }
+
+    function byteLength(text) {
+      return new TextEncoder().encode(text).length;
+    }
+
+    function clearFieldErrors() {
+      document.querySelectorAll(".field-error").forEach((el) => el.classList.remove("field-error"));
+    }
+
+    function markInvalid(id) {
+      const target = id === "textInput" ? els.textInput : field(id);
+      if (!target) return;
+      target.classList.add("field-error", "error-shake");
+      setTimeout(() => target.classList.remove("error-shake"), 450);
+    }
+
+    function validate(action) {
+      clearFieldErrors();
+      syncInputContext(action);
+      const inputName = action === "encrypt" ? "plaintext" : "ciphertext";
+      if (!els.textInput.value.trim()) {
+        markInvalid("textInput");
+        showError(`${action === "encrypt" ? "ENCRYPTION" : "DECRYPTION"} BLOCKED`, action === "encrypt" ? "Please enter text to encrypt." : "Please paste the ciphertext to decrypt.", "MISSING_FIELD");
+        return null;
+      }
+
+      if (appState.mode === "rsa" && action === "encrypt" && byteLength(els.textInput.value) > 190) {
+        markInvalid("textInput");
+        showError("MESSAGE TOO LONG", "RSA can only encrypt short messages, about 190 bytes. Use Hybrid mode instead.", "PLAINTEXT_TOO_LONG");
+        return null;
+      }
+
+      const body = { mode: appState.mode };
+      body[inputName] = els.textInput.value;
+      body.return_telemetry = true;
+
+      const required = [];
+      if (appState.mode === "fernet") required.push("fernetKey");
+      if (appState.mode === "rsa" && action === "encrypt") required.push("publicKey");
+      if (appState.mode === "rsa" && action === "decrypt") required.push("privateKey");
+      if (appState.mode === "hybrid" && action === "encrypt") required.push("publicKey");
+      if (appState.mode === "hybrid" && action === "decrypt") required.push("encryptedSessionKey", "privateKey");
+
+      const missing = required.find((id) => !fieldValue(id));
+      if (missing) {
+        markInvalid(missing);
+        showError(`${action === "encrypt" ? "ENCRYPTION" : "DECRYPTION"} BLOCKED`, "This field is required.", "MISSING_FIELD");
+        return null;
+      }
+
+      if (appState.mode === "fernet") body.fernet_key = fieldValue("fernetKey");
+      if (["rsa", "hybrid"].includes(appState.mode) && action === "encrypt") body.public_key = fieldValue("publicKey");
+      if (["rsa", "hybrid"].includes(appState.mode) && action === "decrypt") body.private_key = fieldValue("privateKey");
+      if (appState.mode === "hybrid" && action === "decrypt") body.encrypted_session_key = fieldValue("encryptedSessionKey");
+
+      return body;
+    }
+
+    async function apiPost(url, body = {}) {
+      const response = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body)
+      });
+      const data = await response.json();
+      if (!data.success) {
+        throw data;
+      }
+      return data;
+    }
+
+    function setButtonLoading(button, loading) {
+      button.classList.toggle("btn-loading", loading);
+      button.disabled = loading;
+    }
+
+    function flashButton(button, kind) {
+      button.classList.add(kind === "success" ? "btn-success" : "btn-error");
+      setTimeout(() => button.classList.remove("btn-success", "btn-error"), 260);
+    }
+
+    async function generateKeys() {
+      hideError();
+      hideResult();
+      processTheater.hide();
+      setButtonLoading(els.generateBtn, true);
+      try {
+        const endpoint = appState.mode === "fernet" ? "/api/fernet/key" : "/api/rsa/keypair";
+        const data = await apiPost(endpoint);
+        if (appState.mode === "fernet") {
+          await typeInto(field("fernetKey"), data.fernet_key, 8, 80);
+        } else {
+          await typeInto(field("publicKey"), data.public_key, 2, 120);
+          await typeInto(field("privateKey"), data.private_key, 1, 120);
+        }
+        showGeneratedBadge();
+        document.querySelectorAll(".field-textarea--code").forEach((el) => {
+          el.classList.add("pulse-border");
+          setTimeout(() => el.classList.remove("pulse-border"), 760);
+        });
+        flashButton(els.generateBtn, "success");
+      } catch (err) {
+        flashButton(els.generateBtn, "error");
+        showError("KEY GENERATION FAILED", err.error || "Unable to generate keys.", err.error_code);
+      } finally {
+        setButtonLoading(els.generateBtn, false);
+      }
+    }
+
+    async function submitAction(action, options = {}) {
+      const body = options.payload || validate(action);
+      if (!body) return;
+      hideError();
+      syncInputContext(action);
+      const button = action === "encrypt" ? els.encryptBtn : els.decryptBtn;
+      setButtonLoading(button, true);
+      els.textInput.classList.add("pulse-border");
+      try {
+        const data = await apiPost(`/api/${action}`, body);
+        appState.lastPayload = body;
+        appState.resultText = action === "encrypt" ? data.ciphertext : data.plaintext;
+        appState.encryptedSessionKey = data.encrypted_session_key || "";
+        flashButton(button, "success");
+        renderExplanation(true);
+        processTheater.load(appState.mode, action, data.telemetry || {}, true);
+        renderResult(action, options.scramble);
+      } catch (err) {
+        flashButton(button, "error");
+        if (err.telemetry) {
+          processTheater.load(appState.mode, action, err.telemetry, true);
+        }
+        showError(`${action === "encrypt" ? "ENCRYPTION" : "DECRYPTION"} FAILED`, err.error || "The request could not be completed.", err.error_code);
+      } finally {
+        setButtonLoading(button, false);
+        setTimeout(() => els.textInput.classList.remove("pulse-border"), 760);
+      }
+    }
+
+    async function renderResult(action, scramble = false) {
+      els.resultPanel.classList.add("show");
+      els.resultLabel.textContent = action === "encrypt" ? "CIPHERTEXT RESULT" : "PLAINTEXT RESULT";
+      els.encryptAgainBtn.style.display = action === "encrypt" ? "inline-block" : "none";
+      els.randomNote.classList.toggle("show", action === "encrypt");
+      els.sessionKeyBlock.classList.toggle("show", Boolean(appState.encryptedSessionKey));
+      els.sessionKeyValue.textContent = appState.encryptedSessionKey;
+      if (appState.encryptedSessionKey && field("encryptedSessionKey")) {
+        field("encryptedSessionKey").value = appState.encryptedSessionKey;
+      }
+      if (scramble) {
+        scrambleText(els.resultOutput, appState.resultText);
+      } else {
+        await typeInto(els.resultOutput, appState.resultText, 18, 60);
+      }
+    }
+
+    function hideResult() {
+      appState.resultText = "";
+      appState.encryptedSessionKey = "";
+      els.resultOutput.value = "";
+      els.sessionKeyValue.textContent = "";
+      els.sessionKeyBlock.classList.remove("show");
+      els.randomNote.classList.remove("show");
+      els.resultPanel.classList.remove("show");
+    }
+
+    function showError(title, message, code = "MISSING_FIELD") {
+      els.errorTitle.textContent = title;
+      els.errorBody.textContent = message;
+      els.errorHint.textContent = errorHints[code] || "Verify the input and try again.";
+      els.errorCard.classList.add("show");
+    }
+
+    function hideError() {
+      els.errorCard.classList.remove("show");
+      clearFieldErrors();
+    }
+
+    function showGeneratedBadge() {
+      els.generatedBadge.classList.add("show");
+      setTimeout(() => els.generatedBadge.classList.remove("show"), 2200);
+    }
+
+    function clearAll() {
+      els.textInput.value = "";
+      document.querySelectorAll("[data-key]").forEach((fieldEl) => {
+        fieldEl.value = "";
+      });
+      updateCharCount();
+      hideResult();
+      processTheater.hide();
+      hideError();
+      renderExplanation(false);
+      syncInputContext("encrypt");
+    }
+
+    function copyValue(source, button) {
+      const value = typeof source === "string" ? source : source?.value || source?.textContent || "";
+      if (!value) return;
+      navigator.clipboard.writeText(value).then(() => {
+        button.classList.add("copied");
+        const original = button.firstChild.nodeValue;
+        button.firstChild.nodeValue = "✓";
+        setTimeout(() => {
+          button.classList.remove("copied");
+          button.firstChild.nodeValue = original;
+        }, 2000);
+      });
+    }
+
+    function typeInto(element, text, speed = 12, visibleLimit = 80) {
+      return new Promise((resolve) => {
+        const setValue = (value) => {
+          if ("value" in element) element.value = value;
+          else element.textContent = value;
+        };
+        setValue("");
+        const limit = Math.min(text.length, visibleLimit);
+        let index = 0;
+        const timer = setInterval(() => {
+          index += 1;
+          setValue(text.slice(0, index));
+          if (index >= limit) {
+            clearInterval(timer);
+            if (text.length > limit) setValue(text);
+            resolve();
+          }
+        }, speed);
+        if (limit === 0) {
+          clearInterval(timer);
+          resolve();
+        }
+      });
+    }
+
+    function scrambleText(element, finalText, duration = 400) {
+      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
+      const steps = 15;
+      let step = 0;
+      const interval = setInterval(() => {
+        if (step >= steps) {
+          element.value = finalText;
+          clearInterval(interval);
+          return;
+        }
+        const revealCount = Math.floor((step / steps) * finalText.length);
+        element.value = finalText.split("").map((char, index) => (
+          index < revealCount ? char : chars[Math.floor(Math.random() * chars.length)]
+        )).join("");
+        step += 1;
+      }, duration / steps);
+    }
+
+    els.modeTabs.forEach((tab) => {
+      tab.addEventListener("click", () => setMode(tab.dataset.mode));
+    });
+    els.textInput.addEventListener("input", updateCharCount);
+    els.generateBtn.addEventListener("click", generateKeys);
+    els.encryptBtn.addEventListener("click", () => submitAction("encrypt"));
+    els.decryptBtn.addEventListener("click", () => submitAction("decrypt"));
+    els.clearBtn.addEventListener("click", clearAll);
+    els.dismissErrorBtn.addEventListener("click", hideError);
+    els.copyResultBtn.addEventListener("click", () => copyValue(els.resultOutput, els.copyResultBtn));
+    els.copyResultIcon.addEventListener("click", () => copyValue(els.resultOutput, els.copyResultIcon));
+    els.encryptAgainBtn.addEventListener("click", () => {
+      if (appState.lastPayload) submitAction("encrypt", { payload: appState.lastPayload, scramble: true });
+    });
+    els.speedBtns.forEach((button) => {
+      button.addEventListener("click", () => {
+        els.speedBtns.forEach((candidate) => candidate.classList.toggle("active", candidate === button));
+        processTheater.setSpeed(button.dataset.speed);
+      });
+    });
+    els.theaterReplayBtn.addEventListener("click", () => processTheater.replay());
+    els.theaterCloseBtn.addEventListener("click", () => processTheater.hide());
+    els.exploreBtn.addEventListener("click", () => {
+      const active = processTheater.toggleExplore();
+      els.exploreBtn.classList.toggle("active", active);
+      if (active) processTheater.goTo(processTheater.currentStage, false);
+      else processTheater.replay();
+    });
+    els.stagePrevBtn.addEventListener("click", () => processTheater.goTo(processTheater.currentStage - 1, false));
+    els.stageNextBtn.addEventListener("click", () => processTheater.goTo(processTheater.currentStage + 1, false));
+    window.addEventListener("resize", updateModeIndicator);
+
+    renderKeyFields();
+    renderExplanation(false);
+    updateModeIndicator();
+    syncInputContext("encrypt");
+  </script>
+</body>
+</html>
